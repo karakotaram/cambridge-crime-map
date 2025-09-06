@@ -188,15 +188,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     five_year_fg.add_to(m)
     one_year_fg.add_to(m)
     
-    # Add additional base layers
-    folium.TileLayer(
-        tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
-        attr='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
-        name='Stamen Terrain'
-    ).add_to(m)
-    folium.TileLayer('cartodb positron').add_to(m)
-    
-    # Add layer control
+    # Add layer control for time periods only (no base map layers)
     folium.LayerControl(position='topleft', collapsed=False).add_to(m)
     
     # Create custom legend with minimize/expand functionality
