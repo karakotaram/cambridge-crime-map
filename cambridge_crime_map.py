@@ -217,14 +217,8 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     </div>
     <div id="legendContent">'
     
-    <div style="margin: 10px 0;">
-        <span style="display: inline-block; width: 15px; height: 15px; 
-                     background-color: #FF4444; border: 1px solid black;"></span>
-        <span style="margin-left: 8px; font-weight: bold;">Violent Crimes</span>
-    </div>
-    
-    <div style="margin: 15px 0; font-size: 12px; color: #666;">
-        <b>Includes:</b> Homicide, Assault, Robbery, Kidnapping, Arson, Weapon Violations, Threats, Stalking, Extortion
+    <div style="margin: 15px 0; font-size: 13px; color: #333; line-height: 1.4;">
+        Violent crimes reported in the City of Cambridge since 2009. Bubbles do not represent the actual location of the crime, but a near approximation within 100 block ranges. Link to data set below.
     </div>
     
     <hr style="margin: 15px 0;">
