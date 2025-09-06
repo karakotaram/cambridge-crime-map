@@ -200,14 +200,14 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;
                 ">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h4 style="margin: 0; color: #d63031;">Violent Crimes Only</h4>
+        <h4 style="margin: 0; color: #d63031;">Cambridge Crime Map, 2009-Present</h4>
         <button id="toggleLegend" onclick="toggleLegend()" style="
             background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;
             width: 30px; height: 30px; cursor: pointer; font-size: 16px;
             display: flex; align-items: center; justify-content: center;
             ">−</button>
     </div>
-    <div id="legendContent">'
+    <div id="legendContent">
     
     <div style="margin: 15px 0; font-size: 13px; color: #333; line-height: 1.4;">
         Violent crimes reported in the City of Cambridge since 2009. Bubbles do not represent the actual location of the crime, but a near approximation within 100 block ranges. Link to data set below.
@@ -218,10 +218,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     <div style="font-size: 12px; color: #666;">
         <b>🔍 Time Period Controls:</b><br>
         Use the <b>layers icon</b> (📂) in the top-left corner to:<br>
-        ✓ Check/uncheck time periods to show/hide<br>
-        • All Time: {len(time_periods['all']['data']) if time_periods['all']['data'] is not None else 0} locations<br>
-        • Past 5 Years: {len(time_periods['5_years']['data']) if time_periods['5_years']['data'] is not None else 0} locations<br>
-        • Past Year: {len(time_periods['1_year']['data']) if time_periods['1_year']['data'] is not None else 0} locations
+        ✓ Check/uncheck time periods to show/hide
     </div>
     
     <hr style="margin: 15px 0;">
