@@ -199,15 +199,23 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     # Add layer control
     folium.LayerControl(position='topleft', collapsed=False).add_to(m)
     
-    # Create custom legend and controls
+    # Create custom legend with minimize/expand functionality
     legend_html = f'''
-    <div style="position: fixed; 
+    <div id="legend" style="position: fixed; 
                 top: 10px; right: 10px; width: 320px; height: 380px; 
                 background-color: white; border:2px solid grey; z-index:9999; 
                 font-size:14px; padding: 15px; overflow-y: auto;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;
                 ">
-    <h4 style="margin: 0 0 15px 0; color: #d63031;">Violent Crimes Only</h4>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h4 style="margin: 0; color: #d63031;">Violent Crimes Only</h4>
+        <button id="toggleLegend" onclick="toggleLegend()" style="
+            background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;
+            width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            ">−</button>
+    </div>
+    <div id="legendContent">'
     
     <div style="margin: 10px 0;">
         <span style="display: inline-block; width: 15px; height: 15px; 
@@ -246,7 +254,73 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
         </a><br>
         <small>Crime Reports Dataset</small>
     </div>
-    </div>
+    </div> <!-- end legendContent -->
+    </div> <!-- end legend -->
+    
+    <script>
+    function toggleLegend() {{
+        const legend = document.getElementById('legend');
+        const content = document.getElementById('legendContent');
+        const button = document.getElementById('toggleLegend');
+        
+        if (content.style.display === 'none') {{
+            // Expand
+            content.style.display = 'block';
+            legend.style.height = '380px';
+            legend.style.width = '320px';
+            button.innerHTML = '−';
+            button.title = 'Minimize legend';
+        }} else {{
+            // Minimize
+            content.style.display = 'none';
+            legend.style.height = '50px';
+            legend.style.width = '200px';
+            button.innerHTML = '+';
+            button.title = 'Expand legend';
+        }}
+    }}
+    
+    // Make legend responsive on mobile
+    window.addEventListener('resize', function() {{
+        const legend = document.getElementById('legend');
+        const content = document.getElementById('legendContent');
+        const button = document.getElementById('toggleLegend');
+        
+        if (window.innerWidth <= 768) {{
+            // Mobile: start minimized
+            if (content.style.display !== 'none') {{
+                content.style.display = 'none';
+                legend.style.height = '50px';
+                legend.style.width = '200px';
+                button.innerHTML = '+';
+                button.title = 'Expand legend';
+            }}
+            legend.style.left = '10px';
+            legend.style.right = 'auto';
+        }} else {{
+            // Desktop: restore position
+            legend.style.left = 'auto';
+            legend.style.right = '10px';
+        }}
+    }});
+    
+    // Auto-minimize on mobile on page load
+    window.addEventListener('load', function() {{
+        if (window.innerWidth <= 768) {{
+            const legend = document.getElementById('legend');
+            const content = document.getElementById('legendContent');
+            const button = document.getElementById('toggleLegend');
+            
+            content.style.display = 'none';
+            legend.style.height = '50px';
+            legend.style.width = '200px';
+            legend.style.left = '10px';
+            legend.style.right = 'auto';
+            button.innerHTML = '+';
+            button.title = 'Expand legend';
+        }}
+    }});
+    </script>
     '''
     
     m.get_root().html.add_child(folium.Element(legend_html))
