@@ -129,57 +129,75 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     color = get_violence_color_palette()
     
     # Create feature groups for each time period
-    feature_groups = {}
-    
-    for period, data in time_periods.items():
-        if data['data'] is not None and len(data['data']) > 0:
-            fg = folium.FeatureGroup(name=data['label'], show=(period == 'all'))
-            
-            aggregated = data['data']
-            
-            # Calculate marker size range
-            if len(aggregated) > 1:
-                max_total = aggregated['total_incidents'].max()
-                min_total = aggregated['total_incidents'].min()
+    def add_markers_to_group(fg, aggregated, color):
+        """Helper function to add markers to a feature group."""
+        # Calculate marker size range
+        if len(aggregated) > 1:
+            max_total = aggregated['total_incidents'].max()
+            min_total = aggregated['total_incidents'].min()
+        else:
+            max_total = min_total = aggregated['total_incidents'].iloc[0] if len(aggregated) > 0 else 1
+        
+        for _, row in aggregated.iterrows():
+            # Scale marker size based on total incidents at location
+            if max_total > min_total:
+                size = 8 + (row['total_incidents'] - min_total) / (max_total - min_total) * 20
             else:
-                max_total = min_total = aggregated['total_incidents'].iloc[0] if len(aggregated) > 0 else 1
+                size = 12
             
-            for _, row in aggregated.iterrows():
-                # Scale marker size based on total incidents at location
-                if max_total > min_total:
-                    size = 8 + (row['total_incidents'] - min_total) / (max_total - min_total) * 20
-                else:
-                    size = 12
-                
-                # Format dates for popup
-                earliest = row['earliest_date'].strftime('%Y-%m-%d') if pd.notna(row['earliest_date']) else 'Unknown'
-                latest = row['latest_date'].strftime('%Y-%m-%d') if pd.notna(row['latest_date']) else 'Unknown'
-                
-                # Create popup text
-                popup_text = f"""
-                <b>Location:</b> {row['Location'] if pd.notna(row['Location']) else 'Not specified'}<br>
-                <b>Neighborhood:</b> {row['Neighborhood'] if pd.notna(row['Neighborhood']) else 'Not specified'}<br>
-                <b>Violent Crime Types:</b> {row['top_crimes']}<br>
-                <b>Total Incidents:</b> {row['total_incidents']}<br>
-                <b>Date Range:</b> {earliest} to {latest}
-                """
-                
-                # Add circle marker
-                folium.CircleMarker(
-                    location=[row['lat'], row['lon']],
-                    radius=size,
-                    popup=folium.Popup(popup_text, max_width=300),
-                    color=color,
-                    fillColor=color,
-                    fillOpacity=0.7,
-                    weight=2
-                ).add_to(fg)
+            # Format dates for popup
+            earliest = row['earliest_date'].strftime('%Y-%m-%d') if pd.notna(row['earliest_date']) else 'Unknown'
+            latest = row['latest_date'].strftime('%Y-%m-%d') if pd.notna(row['latest_date']) else 'Unknown'
             
-            feature_groups[period] = fg
-            fg.add_to(m)
+            # Create popup text
+            popup_text = f"""
+            <b>Location:</b> {row['Location'] if pd.notna(row['Location']) else 'Not specified'}<br>
+            <b>Neighborhood:</b> {row['Neighborhood'] if pd.notna(row['Neighborhood']) else 'Not specified'}<br>
+            <b>Violent Crime Types:</b> {row['top_crimes']}<br>
+            <b>Total Incidents:</b> {row['total_incidents']}<br>
+            <b>Date Range:</b> {earliest} to {latest}
+            """
+            
+            # Add circle marker
+            folium.CircleMarker(
+                location=[row['lat'], row['lon']],
+                radius=size,
+                popup=folium.Popup(popup_text, max_width=300),
+                color=color,
+                fillColor=color,
+                fillOpacity=0.7,
+                weight=2
+            ).add_to(fg)
+    
+    # Create feature groups and add markers
+    all_time_fg = folium.FeatureGroup(name='All Time')
+    five_year_fg = folium.FeatureGroup(name='Past 5 Years')
+    one_year_fg = folium.FeatureGroup(name='Past Year')
+    
+    if time_periods['all']['data'] is not None and len(time_periods['all']['data']) > 0:
+        add_markers_to_group(all_time_fg, time_periods['all']['data'], color)
+    
+    if time_periods['5_years']['data'] is not None and len(time_periods['5_years']['data']) > 0:
+        add_markers_to_group(five_year_fg, time_periods['5_years']['data'], color)
+        
+    if time_periods['1_year']['data'] is not None and len(time_periods['1_year']['data']) > 0:
+        add_markers_to_group(one_year_fg, time_periods['1_year']['data'], color)
+    
+    # Add all feature groups to map
+    all_time_fg.add_to(m)
+    five_year_fg.add_to(m)
+    one_year_fg.add_to(m)
+    
+    # Add additional base layers
+    folium.TileLayer(
+        tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
+        attr='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
+        name='Stamen Terrain'
+    ).add_to(m)
+    folium.TileLayer('cartodb positron').add_to(m)
     
     # Add layer control
-    folium.LayerControl().add_to(m)
+    folium.LayerControl(position='topleft', collapsed=False).add_to(m)
     
     # Create custom legend and controls
     legend_html = f'''
@@ -203,8 +221,9 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     <hr style="margin: 15px 0;">
     
     <div style="font-size: 12px; color: #666;">
-        <b>Time Period Controls:</b><br>
-        Use the layer control (top-left) to toggle between:<br>
+        <b>🔍 Time Period Controls:</b><br>
+        Use the <b>layers icon</b> (📂) in the top-left corner to:<br>
+        ✓ Check/uncheck time periods to show/hide<br>
         • All Time: {len(time_periods['all']['data']) if time_periods['all']['data'] is not None else 0} locations<br>
         • Past 5 Years: {len(time_periods['5_years']['data']) if time_periods['5_years']['data'] is not None else 0} locations<br>
         • Past Year: {len(time_periods['1_year']['data']) if time_periods['1_year']['data'] is not None else 0} locations
@@ -219,14 +238,6 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     '''
     
     m.get_root().html.add_child(folium.Element(legend_html))
-    
-    # Add additional map layers
-    folium.TileLayer(
-        tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
-        attr='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
-        name='Stamen Terrain'
-    ).add_to(m)
-    folium.TileLayer('cartodb positron').add_to(m)
     
     return m
 
