@@ -169,10 +169,10 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 weight=2
             ).add_to(fg)
     
-    # Create feature groups and add markers
-    all_time_fg = folium.FeatureGroup(name='All Time')
-    five_year_fg = folium.FeatureGroup(name='Past 5 Years')
-    one_year_fg = folium.FeatureGroup(name='Past Year')
+    # Create feature groups and add markers - only All Time visible by default
+    all_time_fg = folium.FeatureGroup(name='All Time', show=True)
+    five_year_fg = folium.FeatureGroup(name='Past 5 Years', show=False)
+    one_year_fg = folium.FeatureGroup(name='Past Year', show=False)
     
     if time_periods['all']['data'] is not None and len(time_periods['all']['data']) > 0:
         add_markers_to_group(all_time_fg, time_periods['all']['data'], color)
@@ -202,9 +202,10 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     # Create custom legend and controls
     legend_html = f'''
     <div style="position: fixed; 
-                top: 10px; right: 10px; width: 280px; height: 250px; 
+                top: 10px; right: 10px; width: 320px; height: 380px; 
                 background-color: white; border:2px solid grey; z-index:9999; 
-                font-size:14px; padding: 10px;
+                font-size:14px; padding: 15px; overflow-y: auto;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                 ">
     <h4 style="margin: 0 0 15px 0; color: #d63031;">Violent Crimes Only</h4>
     
@@ -233,6 +234,17 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     
     <div style="font-size: 12px; color: #666;">
         <b>Marker Size:</b> Number of incidents at location
+    </div>
+    
+    <hr style="margin: 15px 0;">
+    
+    <div style="font-size: 11px; color: #888; text-align: center;">
+        <b>Data Source:</b><br>
+        <a href="https://data.cambridgema.gov/Public-Safety/Crime-Reports/xuad-73uj/about_data" 
+           target="_blank" style="color: #0066cc; text-decoration: none;">
+           Cambridge Open Data Portal
+        </a><br>
+        <small>Crime Reports Dataset</small>
     </div>
     </div>
     '''
