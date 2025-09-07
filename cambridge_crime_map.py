@@ -118,10 +118,10 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     center_lat = all_time_df['lat'].mean() if len(all_time_df) > 0 else 42.373
     center_lon = all_time_df['lon'].mean() if len(all_time_df) > 0 else -71.109
     
-    # Create base map
+    # Create base map with higher zoom for better initial view
     m = folium.Map(
         location=[center_lat, center_lon],
-        zoom_start=12,
+        zoom_start=14,
         tiles='OpenStreetMap'
     )
     
