@@ -1,0 +1,487 @@
+#!/usr/bin/env python3
+"""
+Cambridge Violent Crimes Per Capita by Neighborhood Analysis
+Interactive bar chart showing crime rates per 1,000 residents with year filtering.
+"""
+
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime
+
+
+def categorize_crime_as_violent(crime_type):
+    """Categorize crime type as violent or non-violent."""
+    violent_crimes = {
+        'Homicide', 'Aggravated Assault', 'Simple Assault', 'Street Robbery', 
+        'Commercial Robbery', 'Kidnapping', 'Arson', 'Weapon Violations',
+        'Stalking', 'Extortion/Blackmail', 'Threats', 'Domestic Dispute'
+    }
+    
+    return crime_type in violent_crimes
+
+
+def get_neighborhood_populations():
+    """
+    Estimated population by neighborhood based on Cambridge total population (118,403)
+    and typical neighborhood distributions. Estimates based on area, density, and housing patterns.
+    """
+    return {
+        'Baldwin': 6500,          # Harvard area, dense student/family housing
+        'Cambridgeport': 12500,   # Large neighborhood, mixed housing
+        'East Cambridge': 8500,   # Dense urban area near downtown Boston
+        'Highlands': 4200,        # Suburban area, single-family homes
+        'Inman/Harrington': 7800, # Mixed residential area
+        'MIT': 3000,              # Primarily students/staff, smaller residential area
+        'Mid-Cambridge': 15000,   # Central area, high density
+        'North Cambridge': 14000, # Large residential area
+        'Peabody': 5500,          # Mixed residential
+        'Riverside': 11000,       # Large neighborhood along river
+        'Strawberry Hill': 2500,  # Smaller suburban area
+        'The Port': 9500,         # Dense urban area
+        'West Cambridge': 18000   # Large affluent area including Brattle Street
+        # Total: ~118,000 (matches Cambridge population)
+    }
+
+
+def load_and_process_data(csv_path):
+    """Load and process crime data for per capita analysis."""
+    print("Loading crime data...")
+    df = pd.read_csv(csv_path)
+    
+    # Parse crime date
+    df['Crime_Date'] = pd.to_datetime(df['Crime Date Time'], errors='coerce')
+    df = df.dropna(subset=['Crime_Date'])
+    
+    # Filter to violent crimes only
+    df['Is_Violent'] = df['Crime'].apply(categorize_crime_as_violent)
+    df = df[df['Is_Violent']]
+    
+    # Extract year
+    df['Year'] = df['Crime_Date'].dt.year
+    
+    # Clean neighborhood data
+    df['Neighborhood'] = df['Neighborhood'].fillna('Unknown')
+    df = df[df['Year'] >= 2009]  # Focus on 2009 onwards for cleaner data
+    df = df[df['Neighborhood'] != 'Unknown']  # Remove unknown neighborhoods for per capita analysis
+    
+    print(f"Processed {len(df)} violent crime incidents across neighborhoods")
+    return df
+
+
+def create_per_capita_analysis(df, selected_year=None):
+    """Create per capita crime analysis data."""
+    populations = get_neighborhood_populations()
+    
+    # Filter by year if specified
+    if selected_year and selected_year != 'All Time':
+        df_filtered = df[df['Year'] == int(selected_year)]
+        period_label = str(selected_year)
+    else:
+        df_filtered = df
+        period_label = "All Time (2009-Present)"
+    
+    # Count crimes by neighborhood
+    crime_counts = df_filtered.groupby('Neighborhood').size().reset_index(name='Crime_Count')
+    
+    # Add population data and calculate per capita rates
+    crime_counts['Population'] = crime_counts['Neighborhood'].map(populations)
+    
+    # Remove neighborhoods without population data
+    crime_counts = crime_counts.dropna(subset=['Population'])
+    
+    # Calculate crimes per 1,000 residents
+    crime_counts['Crimes_Per_1000'] = (crime_counts['Crime_Count'] / crime_counts['Population']) * 1000
+    
+    # Sort by crime rate (highest first)
+    crime_counts = crime_counts.sort_values('Crimes_Per_1000', ascending=False)
+    
+    print(f"Analyzing {period_label}: {len(crime_counts)} neighborhoods")
+    
+    return crime_counts, period_label
+
+
+def create_crimes_per_capita_chart(csv_path='../../crimedata.csv'):
+    """Create interactive Plotly chart for crimes per capita by neighborhood with year filtering."""
+    
+    # Load and process data
+    df = load_and_process_data(csv_path)
+    
+    # Get available years for dropdown
+    available_years = sorted(df['Year'].unique())
+    
+    # Create main chart (All Time by default)
+    crime_data, period_label = create_per_capita_analysis(df)
+    
+    # Create the bar chart
+    fig = go.Figure()
+    
+    # Add All Time trace (visible by default)
+    fig.add_trace(go.Bar(
+        x=crime_data['Neighborhood'],
+        y=crime_data['Crimes_Per_1000'],
+        name='All Time',
+        marker_color='#d63031',
+        visible=True,
+        customdata=list(zip(crime_data['Crime_Count'], crime_data['Population'])),
+        hovertemplate='<b>%{x}</b><br>' +
+                      'Crimes per 1,000: %{y:.1f}<br>' +
+                      'Total crimes: %{customdata[0]}<br>' +
+                      'Population: %{customdata[1]:,}' +
+                      '<extra></extra>'
+    ))
+    
+    # Add traces for each year (initially hidden)
+    colors = px.colors.qualitative.Set3
+    for i, year in enumerate(available_years):
+        year_data, _ = create_per_capita_analysis(df, year)
+        fig.add_trace(go.Bar(
+            x=year_data['Neighborhood'],
+            y=year_data['Crimes_Per_1000'],
+            name=str(year),
+            marker_color=colors[i % len(colors)],
+            visible=False,
+            customdata=list(zip(year_data['Crime_Count'], year_data['Population'])),
+            hovertemplate='<b>%{x}</b><br>' +
+                          'Crimes per 1,000: %{y:.1f}<br>' +
+                          'Total crimes: %{customdata[0]}<br>' +
+                          'Population: %{customdata[1]:,}' +
+                          '<extra></extra>'
+        ))
+    
+    # Create dropdown menu
+    dropdown_buttons = []
+    
+    # All Time button
+    all_visible = [True] + [False] * len(available_years)
+    dropdown_buttons.append(dict(
+        label="All Time (2009-Present)",
+        method="update",
+        args=[{"visible": all_visible}]
+    ))
+    
+    # Individual year buttons
+    for i, year in enumerate(available_years):
+        visible_list = [False] * (1 + len(available_years))
+        visible_list[i + 1] = True  # +1 because All Time is at index 0
+        dropdown_buttons.append(dict(
+            label=str(year),
+            method="update",
+            args=[{"visible": visible_list}]
+        ))
+    
+    # Update layout
+    fig.update_layout(
+        title=dict(
+            text='Violent Crimes Per Capita by Cambridge Neighborhood',
+            x=0.5,
+            font=dict(size=24, color='#2c3e50')
+        ),
+        xaxis=dict(
+            title=dict(text='Neighborhood', font=dict(size=16)),
+            tickfont=dict(size=12),
+            tickangle=45,
+            gridcolor='#ecf0f1'
+        ),
+        yaxis=dict(
+            title=dict(text='Violent Crimes per 1,000 Residents', font=dict(size=16)),
+            tickfont=dict(size=14),
+            gridcolor='#ecf0f1'
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(family="Segoe UI, Arial"),
+        hovermode='closest',
+        updatemenus=[dict(
+            buttons=dropdown_buttons,
+            direction="down",
+            showactive=True,
+            x=0.02,
+            xanchor="left",
+            y=0.98,
+            yanchor="top",
+            bgcolor='white',
+            bordercolor='#bdc3c7',
+            borderwidth=1
+        )],
+        annotations=[dict(
+            text="Filter by Time Period:",
+            showarrow=False,
+            x=0.02,
+            y=1.05,
+            xref="paper",
+            yref="paper",
+            xanchor="left",
+            yanchor="bottom",
+            font=dict(size=14, color='#2c3e50')
+        )],
+        margin=dict(b=120)  # Extra margin for rotated labels
+    )
+    
+    return fig, df, crime_data
+
+
+def create_summary_stats(df, crime_data):
+    """Create summary statistics for the page."""
+    total_crimes = len(df)
+    years_span = df['Year'].max() - df['Year'].min() + 1
+    neighborhoods_count = len(crime_data)
+    
+    # Calculate city-wide rate
+    total_population = sum(get_neighborhood_populations().values())
+    citywide_rate = (total_crimes / total_population) * 1000
+    
+    # Highest crime rate neighborhood
+    highest_rate_neighborhood = crime_data.iloc[0]['Neighborhood']
+    highest_rate = crime_data.iloc[0]['Crimes_Per_1000']
+    
+    return {
+        'total_crimes': total_crimes,
+        'years_span': years_span,
+        'neighborhoods_count': neighborhoods_count,
+        'citywide_rate': citywide_rate,
+        'highest_rate_neighborhood': highest_rate_neighborhood,
+        'highest_rate': highest_rate
+    }
+
+
+def main():
+    """Generate the crimes per capita HTML page."""
+    print("Creating Crimes Per Capita analysis...")
+    
+    # Create the chart
+    fig, df, crime_data = create_crimes_per_capita_chart()
+    
+    # Get summary stats
+    stats = create_summary_stats(df, crime_data)
+    
+    # Convert to HTML
+    chart_html = fig.to_html(
+        include_plotlyjs='cdn',
+        div_id='per-capita-chart',
+        config={'displayModeBar': True, 'displaylogo': False}
+    )
+    
+    # Create complete HTML page
+    html_content = f'''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambridge Crimes Per Capita | Crime Data Analysis</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }}
+        
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }}
+        
+        .header h1 {{
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }}
+        
+        .header p {{
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }}
+        
+        .nav {{
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        
+        .nav a {{
+            color: #d63031;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+        }}
+        
+        .nav a:hover {{
+            text-decoration: underline;
+        }}
+        
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }}
+        
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }}
+        
+        .stat-card {{
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }}
+        
+        .stat-number {{
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d63031;
+            display: block;
+        }}
+        
+        .stat-label {{
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }}
+        
+        .chart-container {{
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }}
+        
+        .info-box {{
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }}
+        
+        .info-box h3 {{
+            color: #0c5460;
+            margin-bottom: 1rem;
+        }}
+        
+        .info-box ul {{
+            list-style-type: none;
+            padding-left: 0;
+        }}
+        
+        .info-box li {{
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }}
+        
+        .info-box li::before {{
+            content: "ℹ️";
+            position: absolute;
+            left: 0;
+        }}
+        
+        .footer {{
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }}
+        
+        @media (max-width: 768px) {{
+            .container {{
+                padding: 1rem;
+            }}
+            
+            .header h1 {{
+                font-size: 2rem;
+            }}
+            
+            .stats-grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Crimes Per Capita by Neighborhood</h1>
+        <p>Violent crime rates per 1,000 residents across Cambridge neighborhoods</p>
+    </div>
+    
+    <div class="nav">
+        <a href="../../index.html">← Back to Analysis Home</a>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">{stats['total_crimes']:,}</span>
+                <div class="stat-label">Total Violent Crimes</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{stats['neighborhoods_count']}</span>
+                <div class="stat-label">Neighborhoods Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{stats['citywide_rate']:.1f}</span>
+                <div class="stat-label">City-wide Rate per 1,000</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{stats['highest_rate']:.1f}</span>
+                <div class="stat-label">Highest Rate ({stats['highest_rate_neighborhood']})</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            {chart_html}
+        </div>
+        
+        <div class="info-box">
+            <h3>How to Use This Analysis</h3>
+            <ul>
+                <li>Use the dropdown menu to filter by specific years or view all-time data</li>
+                <li>Hover over bars to see exact crime counts, rates, and population estimates</li>
+                <li>The default view shows all-time rates from 2009 to present</li>
+                <li>Neighborhoods are sorted by crime rate (highest to lowest)</li>
+                <li>Population estimates are based on area, density, and housing patterns</li>
+                <li>Data includes only violent crimes: homicide, assault, robbery, kidnapping, arson, weapons violations, threats, stalking, and extortion</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Data Source:</strong> <a href="https://data.cambridgema.gov/Public-Safety/Crime-Reports/xuad-73uj/about_data" target="_blank" style="color: #ecf0f1;">Cambridge Open Data Portal</a></p>
+        <p>Crime Reports Dataset | Population estimates based on neighborhood characteristics</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">*Population estimates are approximate and based on area size, housing density, and demographic patterns</p>
+    </div>
+</body>
+</html>
+    '''
+    
+    # Save the HTML file
+    with open('crimes_per_capita.html', 'w') as f:
+        f.write(html_content)
+    
+    print("Crimes Per Capita analysis saved as crimes_per_capita.html")
+    
+    # Print summary
+    print(f"\nSummary:")
+    print(f"Total violent crimes: {stats['total_crimes']:,}")
+    print(f"Neighborhoods analyzed: {stats['neighborhoods_count']}")
+    print(f"City-wide rate: {stats['citywide_rate']:.1f} per 1,000 residents")
+    print(f"Highest rate: {stats['highest_rate_neighborhood']} ({stats['highest_rate']:.1f} per 1,000)")
+
+
+if __name__ == "__main__":
+    main()
