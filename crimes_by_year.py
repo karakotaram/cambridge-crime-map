@@ -49,6 +49,27 @@ def load_and_process_data(csv_path):
 
 def create_yearly_analysis(df):
     """Create yearly crime analysis data."""
+    # Check if we have 2025 data and calculate pro-rating factor
+    current_year = datetime.now().year
+    prorate_factor = 1.0
+    has_2025_data = False
+    
+    if 2025 in df['Year'].values:
+        has_2025_data = True
+        # Find the most recent incident in 2025
+        df_2025 = df[df['Year'] == 2025]
+        latest_date_2025 = df_2025['Crime_Date'].max()
+        
+        # Calculate what day of year this represents
+        day_of_year = latest_date_2025.timetuple().tm_yday
+        days_in_2025 = 365  # 2025 is not a leap year
+        
+        # Calculate pro-rating factor (how much to multiply by to get full year estimate)
+        prorate_factor = days_in_2025 / day_of_year
+        
+        print(f"Latest 2025 crime: {latest_date_2025.strftime('%m/%d/%Y')} (day {day_of_year})")
+        print(f"Pro-rating factor for 2025: {prorate_factor:.2f}x")
+    
     # Overall yearly counts
     yearly_all = df.groupby('Year').size().reset_index(name='Crime_Count')
     yearly_all['Neighborhood'] = 'All Neighborhoods'
@@ -56,10 +77,15 @@ def create_yearly_analysis(df):
     # By neighborhood yearly counts
     yearly_by_neighborhood = df.groupby(['Year', 'Neighborhood']).size().reset_index(name='Crime_Count')
     
+    # Apply pro-rating to 2025 data
+    if has_2025_data:
+        yearly_all.loc[yearly_all['Year'] == 2025, 'Crime_Count'] = (yearly_all.loc[yearly_all['Year'] == 2025, 'Crime_Count'] * prorate_factor).astype(int)
+        yearly_by_neighborhood.loc[yearly_by_neighborhood['Year'] == 2025, 'Crime_Count'] = (yearly_by_neighborhood.loc[yearly_by_neighborhood['Year'] == 2025, 'Crime_Count'] * prorate_factor).astype(int)
+    
     # Combine data
     all_data = pd.concat([yearly_all, yearly_by_neighborhood], ignore_index=True)
     
-    return all_data
+    return all_data, has_2025_data
 
 
 def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
@@ -67,16 +93,22 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
     
     # Load and process data
     df = load_and_process_data(csv_path)
-    yearly_data = create_yearly_analysis(df)
+    yearly_data, has_2025_data = create_yearly_analysis(df)
     
     # Get neighborhood list for dropdown
     neighborhoods = sorted(df['Neighborhood'].unique())
+    
+    # Create custom labels for years (2025 -> 2025E if pro-rated)
+    def create_year_labels(years, has_2025_data):
+        return [f"{year}E" if year == 2025 and has_2025_data else str(year) for year in years]
     
     # Create the main figure
     fig = go.Figure()
     
     # Add trace for all neighborhoods (default visible)
     all_neighborhoods_data = yearly_data[yearly_data['Neighborhood'] == 'All Neighborhoods']
+    year_labels = create_year_labels(all_neighborhoods_data['Year'], has_2025_data)
+    
     fig.add_trace(go.Scatter(
         x=all_neighborhoods_data['Year'],
         y=all_neighborhoods_data['Crime_Count'],
@@ -84,7 +116,9 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
         name='All Neighborhoods',
         line=dict(color='#d63031', width=3),
         marker=dict(size=8, color='#d63031'),
-        visible=True
+        visible=True,
+        customdata=year_labels,
+        hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
     ))
     
     # Add traces for each neighborhood (initially hidden)
@@ -93,6 +127,7 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
         if neighborhood != 'Unknown':  # Skip Unknown for cleaner display
             neighborhood_data = yearly_data[yearly_data['Neighborhood'] == neighborhood]
             if len(neighborhood_data) > 0:
+                neighborhood_year_labels = create_year_labels(neighborhood_data['Year'], has_2025_data)
                 fig.add_trace(go.Scatter(
                     x=neighborhood_data['Year'],
                     y=neighborhood_data['Crime_Count'],
@@ -100,7 +135,9 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
                     name=neighborhood,
                     line=dict(color=colors[i % len(colors)], width=2),
                     marker=dict(size=6),
-                    visible=False
+                    visible=False,
+                    customdata=neighborhood_year_labels,
+                    hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
                 ))
     
     # Create dropdown menu
@@ -138,7 +175,10 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
         xaxis=dict(
             title=dict(text='Year', font=dict(size=16)),
             tickfont=dict(size=14),
-            gridcolor='#ecf0f1'
+            gridcolor='#ecf0f1',
+            tickmode='array',
+            tickvals=list(yearly_data[yearly_data['Neighborhood'] == 'All Neighborhoods']['Year'].unique()),
+            ticktext=create_year_labels(yearly_data[yearly_data['Neighborhood'] == 'All Neighborhoods']['Year'].unique(), has_2025_data)
         ),
         yaxis=dict(
             title=dict(text='Number of Violent Crimes', font=dict(size=16)),
@@ -174,7 +214,7 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
         )]
     )
     
-    return fig, df
+    return fig, df, has_2025_data
 
 
 def create_summary_stats(df):
@@ -209,7 +249,7 @@ def main():
     print("Creating Crimes by Year analysis...")
     
     # Create the chart
-    fig, df = create_crimes_by_year_chart()
+    fig, df, has_2025_data = create_crimes_by_year_chart()
     
     # Get summary stats
     stats = create_summary_stats(df)
@@ -379,7 +419,7 @@ def main():
     </div>
     
     <div class="nav">
-        <a href="./index.html">← Back to Analysis Home</a>
+        <a href="../../index.html">← Back to Analysis Home</a>
     </div>
     
     <div class="container">
@@ -414,6 +454,7 @@ def main():
                 <li>The default view shows trends across all Cambridge neighborhoods</li>
                 <li>Data includes only violent crimes: homicide, assault, robbery, kidnapping, arson, weapons violations, threats, stalking, and extortion</li>
                 <li>Years with no data points indicate zero violent crimes reported for that neighborhood</li>
+                {'<li><strong>*2025E data:</strong> 2025 crime counts have been pro-rated to estimate a full year based on the most recent incident date</li>' if has_2025_data else ''}
             </ul>
         </div>
     </div>
