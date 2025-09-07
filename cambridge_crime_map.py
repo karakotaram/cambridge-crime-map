@@ -315,7 +315,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 <h1 style="margin: 0; font-size: 1.8rem;">🗺️ Cambridge Crime Map</h1>
                 <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Interactive map of violent crimes, 2009-Present</p>
             </div>
-            <a href="../../index.html" style="background: rgba(255,255,255,0.2); color: white; 
+            <a href="index.html" style="background: rgba(255,255,255,0.2); color: white; 
                                           padding: 8px 16px; border-radius: 20px; text-decoration: none; 
                                           font-weight: bold; transition: all 0.3s ease;"
                onmouseover="this.style.background='rgba(255,255,255,0.3)'"
