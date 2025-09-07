@@ -44,7 +44,7 @@ def load_and_process_data(csv_path):
     # Clean neighborhood data
     df['Neighborhood'] = df['Neighborhood'].fillna('Unknown')
     df = df[df['Neighborhood'] != 'Unknown']
-    df = df[df['Year'] >= 2020]  # Focus on recent years
+    df = df[df['Year'] == 2024]  # Focus on 2024 data
     
     print(f"Processed {len(df)} violent crime incidents for time analysis")
     return df
@@ -69,13 +69,14 @@ def create_time_heatmap_data(df, neighborhood=None):
     pivot_data = heatmap_data.pivot(index='DayOfWeek', columns='Hour', values='Count').fillna(0)
     
     # Ensure all hours and days are represented
-    for day in all_days:
-        if day not in pivot_data.index:
-            pivot_data.loc[day] = [0] * 24
-    
     for hour in all_hours:
         if hour not in pivot_data.columns:
             pivot_data[hour] = 0
+    
+    for day in all_days:
+        if day not in pivot_data.index:
+            new_row = pd.Series([0] * 24, index=pivot_data.columns, name=day)
+            pivot_data = pd.concat([pivot_data, new_row.to_frame().T])
     
     # Sort by day and hour
     pivot_data = pivot_data.sort_index().sort_index(axis=1)
@@ -449,7 +450,7 @@ def main():
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-number">{stats['total_crimes']:,}</span>
-                <div class="stat-label">Total Recent Crimes</div>
+                <div class="stat-label">Total 2024 Crimes</div>
             </div>
             <div class="stat-card">
                 <span class="stat-number">{stats['peak_crimes']}</span>
@@ -518,7 +519,7 @@ def main():
                 <li>Darker red colors indicate more frequent crime incidents</li>
                 <li>Hover over cells to see exact incident counts for each time period</li>
                 <li>Look for patterns: Are certain days or hours consistently more dangerous?</li>
-                <li>Data covers violent crimes from 2020 to present for current relevance</li>
+                <li>Data covers violent crimes from 2024 for current relevance</li>
                 <li>Each cell represents one hour on one day of the week</li>
                 <li>Use patterns to inform personal safety decisions about timing activities</li>
             </ul>
@@ -527,7 +528,7 @@ def main():
     
     <div class="footer">
         <p><strong>Data Source:</strong> <a href="https://data.cambridgema.gov/Public-Safety/Crime-Reports/xuad-73uj/about_data" target="_blank" style="color: #ecf0f1;">Cambridge Open Data Portal</a></p>
-        <p>Time pattern analysis based on violent crimes from 2020 to present</p>
+        <p>Time pattern analysis based on violent crimes from 2024</p>
     </div>
 </body>
 </html>
