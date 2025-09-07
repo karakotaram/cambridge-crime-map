@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambridge Crime Data Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .analyses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .analysis-card h2 {
+            color: #d63031;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .analysis-card p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        
+        .analysis-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .analysis-features li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .analysis-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00b894;
+            font-weight: bold;
+        }
+        
+        .launch-btn {
+            background: linear-gradient(45deg, #d63031, #e17055);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .launch-btn:hover {
+            background: linear-gradient(45deg, #b71c1c, #d63031);
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stats-bar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            color: white;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .analyses-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cambridge Crime Data Analysis</h1>
+            <p>Interactive visualizations of violent crime data from 2009 to present</p>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">7,334</span>
+                <span class="stat-label">Violent Crimes</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">116</span>
+                <span class="stat-label">Locations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">16</span>
+                <span class="stat-label">Years of Data</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">12</span>
+                <span class="stat-label">Crime Types</span>
+            </div>
+        </div>
+        
+        <div class="analyses-grid">
+            <a href="src/visualization/cambridge_crime_map.html" class="analysis-card">
+                <h2>🗺️ Interactive Crime Map</h2>
+                <p>Explore violent crimes across Cambridge with interactive mapping and time period filtering.</p>
+                <ul class="analysis-features">
+                    <li>Interactive map with bubble markers</li>
+                    <li>Filter by All Time, Past 5 Years, or Past Year</li>
+                    <li>Location approximation within 100 blocks</li>
+                    <li>Mobile-friendly collapsible legend</li>
+                    <li>Radio button time period selection</li>
+                </ul>
+                <div class="launch-btn">Launch Map Analysis →</div>
+            </a>
+            
+            <a href="src/visualization/crimes_by_year.html" class="analysis-card">
+                <h2>📈 Crimes Over Time</h2>
+                <p>Track violent crime trends year by year with neighborhood filtering capabilities.</p>
+                <ul class="analysis-features">
+                    <li>Line graph showing yearly crime trends</li>
+                    <li>Filter by specific neighborhoods</li>
+                    <li>Compare different areas over time</li>
+                    <li>Interactive hover tooltips</li>
+                    <li>Data from 2009 to present</li>
+                </ul>
+                <div class="launch-btn">Launch Trend Analysis →</div>
+            </a>
+            
+            <div class="analysis-card" style="opacity: 0.6; cursor: not-allowed;">
+                <h2>🏘️ Neighborhood Analysis</h2>
+                <p>Compare crime rates and patterns across different Cambridge neighborhoods.</p>
+                <ul class="analysis-features">
+                    <li>Bar charts by neighborhood</li>
+                    <li>Crime type breakdown</li>
+                    <li>Population-adjusted rates</li>
+                    <li>Year-over-year comparisons</li>
+                    <li>Safety rankings</li>
+                </ul>
+                <div class="launch-btn" style="background: #ddd; color: #999;">Coming Soon</div>
+            </div>
+            
+            <div class="analysis-card" style="opacity: 0.6; cursor: not-allowed;">
+                <h2>⏰ Time Pattern Analysis</h2>
+                <p>Discover when violent crimes are most likely to occur throughout the day and week.</p>
+                <ul class="analysis-features">
+                    <li>Heatmaps by hour and day</li>
+                    <li>Seasonal trend analysis</li>
+                    <li>Weekend vs weekday patterns</li>
+                    <li>Peak crime time identification</li>
+                    <li>Monthly trend visualization</li>
+                </ul>
+                <div class="launch-btn" style="background: #ddd; color: #999;">Coming Soon</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Data Source:</strong> <a href="https://data.cambridgema.gov/Public-Safety/Crime-Reports/xuad-73uj/about_data" target="_blank" style="color: white;">Cambridge Open Data Portal</a></p>
+            <p>Crime Reports Dataset | Updated regularly</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Bubbles represent approximate locations within 100-block ranges for privacy protection.</p>
+        </div>
+    </div>
+</body>
+</html>

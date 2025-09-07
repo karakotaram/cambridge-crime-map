@@ -303,6 +303,41 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     
     m.get_root().html.add_child(folium.Element(legend_html))
     
+    # Add navigation header
+    nav_html = '''
+    <div id="navHeader" style="position: fixed; top: 0; left: 0; right: 0; 
+                               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               color: white; padding: 15px; z-index: 10000;
+                               box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                               font-family: 'Segoe UI', Arial, sans-serif;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="margin: 0; font-size: 1.8rem;">🗺️ Cambridge Crime Map</h1>
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Interactive map of violent crimes, 2009-Present</p>
+            </div>
+            <a href="../../index.html" style="background: rgba(255,255,255,0.2); color: white; 
+                                          padding: 8px 16px; border-radius: 20px; text-decoration: none; 
+                                          font-weight: bold; transition: all 0.3s ease;"
+               onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                ← All Analyses
+            </a>
+        </div>
+    </div>
+    
+    <style>
+        body { margin-top: 80px !important; }
+        
+        @media (max-width: 768px) {
+            #navHeader > div { flex-direction: column; text-align: center; gap: 10px; }
+            #navHeader h1 { font-size: 1.5rem; }
+            body { margin-top: 100px !important; }
+        }
+    </style>
+    '''
+    
+    m.get_root().html.add_child(folium.Element(nav_html))
+    
     # Add JavaScript to make layer control behave like radio buttons
     radio_behavior_js = '''
     <script>
