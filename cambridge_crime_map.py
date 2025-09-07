@@ -210,18 +210,11 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     <div id="legendContent">
     
     <div style="margin: 15px 0; font-size: 13px; color: #333; line-height: 1.4;">
-        Violent crimes reported in the City of Cambridge since 2009. Bubbles do not represent the actual location of the crime, but a near approximation within 100 block ranges. Link to data set below.
+        Violent crimes reported in the City of Cambridge since 2009. Data can also be filtered to only include incidents in the last five years or in the last year using the toggles on the left. Bubbles do not represent the actual location of the crime, but a near approximation within 100 block ranges. Link to data set below.
     </div>
     
     <hr style="margin: 15px 0;">
     
-    <div style="font-size: 12px; color: #666;">
-        <b>🔍 Time Period Controls:</b><br>
-        Use the <b>layers icon</b> (📂) in the top-left corner to:<br>
-        ✓ Check/uncheck time periods to show/hide
-    </div>
-    
-    <hr style="margin: 15px 0;">
     
     <div style="font-size: 12px; color: #666;">
         <b>Marker Size:</b> Number of incidents at location
