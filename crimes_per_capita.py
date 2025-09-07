@@ -7,6 +7,7 @@ Interactive bar chart showing crime rates per 1,000 residents with year filterin
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import json
 from datetime import datetime
 
 
@@ -255,6 +256,15 @@ def main():
     # Get summary stats
     stats = create_summary_stats(df, crime_data)
     
+    # Prepare crime data for map popups
+    crime_data_dict = {}
+    for _, row in crime_data.iterrows():
+        crime_data_dict[row['Neighborhood']] = {
+            'crime_count': int(row['Crime_Count']),
+            'population': int(row['Population']),
+            'rate': float(row['Crimes_Per_1000'])
+        }
+    
     # Convert to HTML
     chart_html = fig.to_html(
         include_plotlyjs='cdn',
@@ -447,6 +457,121 @@ def main():
             {chart_html}
         </div>
         
+        <div class="chart-container">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #2c3e50;">Cambridge Neighborhood Boundaries</h2>
+            <div id="neighborhood-map" style="height: 600px; width: 100%;"></div>
+            
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            
+            <script>
+                // Initialize the map
+                var map = L.map('neighborhood-map').setView([42.3736, -71.1097], 12);
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 18
+                }}).addTo(map);
+                
+                // Color scheme for neighborhoods - using same colors as bar chart
+                var neighborhoodColors = {{
+                    'Baldwin': '#8dd3c7',
+                    'Cambridgeport': '#ffffb3',
+                    'East Cambridge': '#bebada',
+                    'Highlands': '#fb8072',
+                    'Inman/Harrington': '#80b1d3',
+                    'MIT': '#fdb462',
+                    'Mid-Cambridge': '#b3de69',
+                    'North Cambridge': '#fccde5',
+                    'Peabody': '#d9d9d9',
+                    'Riverside': '#bc80bd',
+                    'Strawberry Hill': '#ccebc5',
+                    'The Port': '#ffed6f',
+                    'West Cambridge': '#8dd3c7'
+                }};
+                
+                // Default color for any neighborhoods not in our list
+                var defaultColor = '#999999';
+                
+                // Crime data for popups
+                var crimeData = {json.dumps(crime_data_dict)};
+                
+                // Function to get color for neighborhood
+                function getNeighborhoodColor(name) {{
+                    return neighborhoodColors[name] || defaultColor;
+                }}
+                
+                // Function to style each neighborhood
+                function style(feature) {{
+                    var name = feature.properties.N_HOOD;
+                    return {{
+                        fillColor: getNeighborhoodColor(name),
+                        weight: 2,
+                        opacity: 0.8,
+                        color: '#2c3e50',
+                        fillOpacity: 0.6
+                    }};
+                }}
+                
+                // Function to handle click events
+                function onEachFeature(feature, layer) {{
+                    var name = feature.properties.N_HOOD;
+                    var popupContent = '<h4>' + name + '</h4>';
+                    
+                    // Add crime rate info if available
+                    if (crimeData[name]) {{
+                        var data = crimeData[name];
+                        popupContent += '<table style="margin-top: 10px;">';
+                        popupContent += '<tr><td><strong>Crime Rate:</strong></td><td>' + data.rate.toFixed(1) + ' per 1,000 residents</td></tr>';
+                        popupContent += '<tr><td><strong>Total Crimes:</strong></td><td>' + data.crime_count.toLocaleString() + '</td></tr>';
+                        popupContent += '<tr><td><strong>Population:</strong></td><td>' + data.population.toLocaleString() + '</td></tr>';
+                        popupContent += '</table>';
+                    }} else {{
+                        popupContent += '<p>No crime data available for this neighborhood</p>';
+                    }}
+                    
+                    layer.bindPopup(popupContent);
+                    
+                    // Highlight on mouseover
+                    layer.on({{
+                        mouseover: function(e) {{
+                            var layer = e.target;
+                            layer.setStyle({{
+                                weight: 3,
+                                opacity: 1.0,
+                                fillOpacity: 0.8
+                            }});
+                        }},
+                        mouseout: function(e) {{
+                            geojsonLayer.resetStyle(e.target);
+                        }}
+                    }});
+                }}
+                
+                // Variable to store the GeoJSON layer
+                var geojsonLayer;
+                
+                // Load and display the neighborhood boundaries
+                fetch('https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Boundary/CDD_Neighborhoods/BOUNDARY_CDDNeighborhoods.geojson')
+                    .then(response => response.json())
+                    .then(data => {{
+                        geojsonLayer = L.geoJSON(data, {{
+                            style: style,
+                            onEachFeature: onEachFeature
+                        }}).addTo(map);
+                        
+                        // Fit map bounds to show all neighborhoods
+                        map.fitBounds(geojsonLayer.getBounds(), {{padding: [10, 10]}});
+                    }})
+                    .catch(error => {{
+                        console.error('Error loading neighborhood data:', error);
+                        document.getElementById('neighborhood-map').innerHTML = 
+                            '<p style="text-align: center; color: #666; padding: 2rem;">Unable to load neighborhood boundary map.</p>';
+                    }});
+            </script>
+        </div>
+        
         <div class="info-box">
             <h3>How to Use This Analysis</h3>
             <ul>
@@ -454,6 +579,8 @@ def main():
                 <li>Hover over bars to see exact crime counts, rates, and population estimates</li>
                 <li>The default view shows all-time rates from 2009 to present</li>
                 <li>Neighborhoods are sorted by crime rate (highest to lowest)</li>
+                <li>Click on neighborhood boundaries in the map to see detailed crime statistics</li>
+                <li>Map colors correspond to the bar chart colors for easy reference</li>
                 <li>Population estimates are based on area, density, and housing patterns</li>
                 <li>Data includes only violent crimes: homicide, assault, robbery, kidnapping, arson, weapons violations, threats, stalking, and extortion</li>
             </ul>
