@@ -169,11 +169,12 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 weight=2
             ).add_to(fg)
     
-    # Create feature groups and add markers - only All Time visible by default
-    all_time_fg = folium.FeatureGroup(name='All Time', show=True)
-    five_year_fg = folium.FeatureGroup(name='Past 5 Years', show=False)
-    one_year_fg = folium.FeatureGroup(name='Past Year', show=False)
+    # Create feature groups - but implement radio button behavior by hiding/showing layers
+    all_time_fg = folium.FeatureGroup(name='All Time')
+    five_year_fg = folium.FeatureGroup(name='Past 5 Years') 
+    one_year_fg = folium.FeatureGroup(name='Past Year')
     
+    # Add markers to each group
     if time_periods['all']['data'] is not None and len(time_periods['all']['data']) > 0:
         add_markers_to_group(all_time_fg, time_periods['all']['data'], color)
     
@@ -183,12 +184,12 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     if time_periods['1_year']['data'] is not None and len(time_periods['1_year']['data']) > 0:
         add_markers_to_group(one_year_fg, time_periods['1_year']['data'], color)
     
-    # Add all feature groups to map
+    # Add all feature groups to map 
     all_time_fg.add_to(m)
-    five_year_fg.add_to(m)
+    five_year_fg.add_to(m) 
     one_year_fg.add_to(m)
     
-    # Add layer control for time periods only (no base map layers)
+    # Add layer control  
     folium.LayerControl(position='topleft', collapsed=False).add_to(m)
     
     # Create custom legend with minimize/expand functionality
@@ -301,6 +302,70 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     '''
     
     m.get_root().html.add_child(folium.Element(legend_html))
+    
+    # Add JavaScript to make layer control behave like radio buttons
+    radio_behavior_js = '''
+    <script>
+    // Wait for the map and layer control to load
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            makeLayerControlRadio();
+        }, 1000);
+    });
+    
+    function makeLayerControlRadio() {
+        // Find all layer control checkboxes
+        const layerControl = document.querySelector('.leaflet-control-layers');
+        if (!layerControl) {
+            setTimeout(makeLayerControlRadio, 500);
+            return;
+        }
+        
+        const checkboxes = layerControl.querySelectorAll('input[type="checkbox"]');
+        const timePeriodsCheckboxes = [];
+        
+        // Identify time period checkboxes (they should be the overlay checkboxes)
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.nextElementSibling;
+            if (label && (label.textContent.includes('All Time') || 
+                         label.textContent.includes('Past 5 Years') || 
+                         label.textContent.includes('Past Year'))) {
+                timePeriodsCheckboxes.push(checkbox);
+            }
+        });
+        
+        // Add event listeners to make them behave like radio buttons
+        timePeriodsCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Uncheck all other time period checkboxes
+                    timePeriodsCheckboxes.forEach(otherCheckbox => {
+                        if (otherCheckbox !== this && otherCheckbox.checked) {
+                            otherCheckbox.click(); // This will uncheck and hide the layer
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Ensure "All Time" is checked by default and others are unchecked
+        timePeriodsCheckboxes.forEach(checkbox => {
+            const label = checkbox.nextElementSibling;
+            if (label && label.textContent.includes('All Time')) {
+                if (!checkbox.checked) {
+                    checkbox.click();
+                }
+            } else {
+                if (checkbox.checked) {
+                    checkbox.click();
+                }
+            }
+        });
+    }
+    </script>
+    '''
+    
+    m.get_root().html.add_child(folium.Element(radio_behavior_js))
     
     return m
 
