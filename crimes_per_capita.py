@@ -256,14 +256,32 @@ def main():
     # Get summary stats
     stats = create_summary_stats(df, crime_data)
     
-    # Prepare crime data for map popups
+    # Prepare crime data for map popups (2024 data specifically)
+    crime_data_2024, _ = create_per_capita_analysis(df, 2024)
     crime_data_dict = {}
-    for _, row in crime_data.iterrows():
+    for _, row in crime_data_2024.iterrows():
         crime_data_dict[row['Neighborhood']] = {
             'crime_count': int(row['Crime_Count']),
             'population': int(row['Population']),
             'rate': float(row['Crimes_Per_1000'])
         }
+    
+    # Create mapping from GeoJSON names to our neighborhood names
+    geojson_to_our_names = {
+        'The Port': 'The Port',
+        'Neighborhood Nine': 'Baldwin',  # Based on the data, this seems to be the northern area
+        'Wellington-Harrington': 'Inman/Harrington',
+        'Mid-Cambridge': 'Mid-Cambridge', 
+        'North Cambridge': 'North Cambridge',
+        'Cambridge Highlands': 'Highlands',
+        'Strawberry Hill': 'Strawberry Hill',
+        'West Cambridge': 'West Cambridge',
+        'Riverside': 'Riverside',
+        'Cambridgeport': 'Cambridgeport',
+        'Area 2/MIT': 'MIT',
+        'East Cambridge': 'East Cambridge',
+        'Baldwin': 'Baldwin'  # There are apparently two Baldwin areas
+    }
     
     # Convert to HTML
     chart_html = fig.to_html(
@@ -494,8 +512,11 @@ def main():
                 // Default color for any neighborhoods not in our list
                 var defaultColor = '#999999';
                 
-                // Crime data for popups
+                // Crime data for popups (2024 data)
                 var crimeData = {json.dumps(crime_data_dict)};
+                
+                // Mapping from GeoJSON neighborhood names to our neighborhood names
+                var nameMapping = {json.dumps(geojson_to_our_names)};
                 
                 // Function to get color for neighborhood
                 function getNeighborhoodColor(name) {{
@@ -504,9 +525,10 @@ def main():
                 
                 // Function to style each neighborhood
                 function style(feature) {{
-                    var name = feature.properties.N_HOOD;
+                    var geojsonName = feature.properties.NAME;
+                    var ourName = nameMapping[geojsonName] || geojsonName;
                     return {{
-                        fillColor: getNeighborhoodColor(name),
+                        fillColor: getNeighborhoodColor(ourName),
                         weight: 2,
                         opacity: 0.8,
                         color: '#2c3e50',
@@ -516,19 +538,21 @@ def main():
                 
                 // Function to handle click events
                 function onEachFeature(feature, layer) {{
-                    var name = feature.properties.N_HOOD;
-                    var popupContent = '<h4>' + name + '</h4>';
+                    var geojsonName = feature.properties.NAME;
+                    var ourName = nameMapping[geojsonName] || geojsonName;
+                    var popupContent = '<h4>' + geojsonName + '</h4>';
                     
                     // Add crime rate info if available
-                    if (crimeData[name]) {{
-                        var data = crimeData[name];
-                        popupContent += '<table style="margin-top: 10px;">';
-                        popupContent += '<tr><td><strong>Crime Rate:</strong></td><td>' + data.rate.toFixed(1) + ' per 1,000 residents</td></tr>';
-                        popupContent += '<tr><td><strong>Total Crimes:</strong></td><td>' + data.crime_count.toLocaleString() + '</td></tr>';
+                    if (crimeData[ourName]) {{
+                        var data = crimeData[ourName];
+                        popupContent += '<table style="margin-top: 10px; font-size: 14px;">';
+                        popupContent += '<tr><td><strong>2024 Crime Rate:</strong></td><td>' + data.rate.toFixed(1) + ' per 1,000 residents</td></tr>';
+                        popupContent += '<tr><td><strong>2024 Violent Crimes:</strong></td><td>' + data.crime_count.toLocaleString() + '</td></tr>';
                         popupContent += '<tr><td><strong>Population:</strong></td><td>' + data.population.toLocaleString() + '</td></tr>';
                         popupContent += '</table>';
                     }} else {{
-                        popupContent += '<p>No crime data available for this neighborhood</p>';
+                        popupContent += '<p>No 2024 crime data available for this neighborhood</p>';
+                        popupContent += '<p><small>Mapped name: ' + ourName + '</small></p>';
                     }}
                     
                     layer.bindPopup(popupContent);

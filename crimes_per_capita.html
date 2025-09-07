@@ -225,8 +225,11 @@
                 // Default color for any neighborhoods not in our list
                 var defaultColor = '#999999';
                 
-                // Crime data for popups
-                var crimeData = {"Cambridgeport": {"crime_count": 1375, "population": 12500, "rate": 110.0}, "The Port": {"crime_count": 905, "population": 9500, "rate": 95.26315789473684}, "East Cambridge": {"crime_count": 717, "population": 8500, "rate": 84.3529411764706}, "Riverside": {"crime_count": 918, "population": 11000, "rate": 83.45454545454545}, "Inman/Harrington": {"crime_count": 455, "population": 7800, "rate": 58.333333333333336}, "Peabody": {"crime_count": 297, "population": 5500, "rate": 54.0}, "Mid-Cambridge": {"crime_count": 802, "population": 15000, "rate": 53.46666666666667}, "North Cambridge": {"crime_count": 687, "population": 14000, "rate": 49.07142857142857}, "Highlands": {"crime_count": 192, "population": 4200, "rate": 45.714285714285715}, "MIT": {"crime_count": 125, "population": 3000, "rate": 41.666666666666664}, "West Cambridge": {"crime_count": 682, "population": 18000, "rate": 37.888888888888886}, "Strawberry Hill": {"crime_count": 72, "population": 2500, "rate": 28.8}, "Baldwin": {"crime_count": 106, "population": 6500, "rate": 16.307692307692307}};
+                // Crime data for popups (2024 data)
+                var crimeData = {"Cambridgeport": {"crime_count": 91, "population": 12500, "rate": 7.28}, "Riverside": {"crime_count": 76, "population": 11000, "rate": 6.909090909090909}, "The Port": {"crime_count": 56, "population": 9500, "rate": 5.894736842105264}, "Mid-Cambridge": {"crime_count": 72, "population": 15000, "rate": 4.8}, "East Cambridge": {"crime_count": 40, "population": 8500, "rate": 4.705882352941176}, "Highlands": {"crime_count": 17, "population": 4200, "rate": 4.0476190476190474}, "Peabody": {"crime_count": 22, "population": 5500, "rate": 4.0}, "Inman/Harrington": {"crime_count": 28, "population": 7800, "rate": 3.58974358974359}, "North Cambridge": {"crime_count": 49, "population": 14000, "rate": 3.5}, "Strawberry Hill": {"crime_count": 7, "population": 2500, "rate": 2.8}, "West Cambridge": {"crime_count": 50, "population": 18000, "rate": 2.7777777777777777}, "Baldwin": {"crime_count": 8, "population": 6500, "rate": 1.2307692307692308}, "MIT": {"crime_count": 3, "population": 3000, "rate": 1.0}};
+                
+                // Mapping from GeoJSON neighborhood names to our neighborhood names
+                var nameMapping = {"The Port": "The Port", "Neighborhood Nine": "Baldwin", "Wellington-Harrington": "Inman/Harrington", "Mid-Cambridge": "Mid-Cambridge", "North Cambridge": "North Cambridge", "Cambridge Highlands": "Highlands", "Strawberry Hill": "Strawberry Hill", "West Cambridge": "West Cambridge", "Riverside": "Riverside", "Cambridgeport": "Cambridgeport", "Area 2/MIT": "MIT", "East Cambridge": "East Cambridge", "Baldwin": "Baldwin"};
                 
                 // Function to get color for neighborhood
                 function getNeighborhoodColor(name) {
@@ -235,9 +238,10 @@
                 
                 // Function to style each neighborhood
                 function style(feature) {
-                    var name = feature.properties.N_HOOD;
+                    var geojsonName = feature.properties.NAME;
+                    var ourName = nameMapping[geojsonName] || geojsonName;
                     return {
-                        fillColor: getNeighborhoodColor(name),
+                        fillColor: getNeighborhoodColor(ourName),
                         weight: 2,
                         opacity: 0.8,
                         color: '#2c3e50',
@@ -247,19 +251,21 @@
                 
                 // Function to handle click events
                 function onEachFeature(feature, layer) {
-                    var name = feature.properties.N_HOOD;
-                    var popupContent = '<h4>' + name + '</h4>';
+                    var geojsonName = feature.properties.NAME;
+                    var ourName = nameMapping[geojsonName] || geojsonName;
+                    var popupContent = '<h4>' + geojsonName + '</h4>';
                     
                     // Add crime rate info if available
-                    if (crimeData[name]) {
-                        var data = crimeData[name];
-                        popupContent += '<table style="margin-top: 10px;">';
-                        popupContent += '<tr><td><strong>Crime Rate:</strong></td><td>' + data.rate.toFixed(1) + ' per 1,000 residents</td></tr>';
-                        popupContent += '<tr><td><strong>Total Crimes:</strong></td><td>' + data.crime_count.toLocaleString() + '</td></tr>';
+                    if (crimeData[ourName]) {
+                        var data = crimeData[ourName];
+                        popupContent += '<table style="margin-top: 10px; font-size: 14px;">';
+                        popupContent += '<tr><td><strong>2024 Crime Rate:</strong></td><td>' + data.rate.toFixed(1) + ' per 1,000 residents</td></tr>';
+                        popupContent += '<tr><td><strong>2024 Violent Crimes:</strong></td><td>' + data.crime_count.toLocaleString() + '</td></tr>';
                         popupContent += '<tr><td><strong>Population:</strong></td><td>' + data.population.toLocaleString() + '</td></tr>';
                         popupContent += '</table>';
                     } else {
-                        popupContent += '<p>No crime data available for this neighborhood</p>';
+                        popupContent += '<p>No 2024 crime data available for this neighborhood</p>';
+                        popupContent += '<p><small>Mapped name: ' + ourName + '</small></p>';
                     }
                     
                     layer.bindPopup(popupContent);
