@@ -78,11 +78,16 @@ def get_neighborhood_population_estimates():
         'North Cambridge': 14200,
         'Cambridge Highlands': 7100,
         'Strawberry Hill': 7100,
-        'MIT': 5900,  # Alternative name mapping
-        'The Port': 10700,  # Alternative name mapping
-        'Mid-Cambridge': 9500,  # Alternative name mapping
-        'Riverside': 8300,  # Alternative name mapping
-        'West Cambridge': 11800,  # Alternative name mapping
+        # Alternative name mappings to match crime data neighborhood names
+        'MIT': 5900,  
+        'The Port': 10700,
+        'Mid-Cambridge': 9500,
+        'Riverside': 8300,
+        'West Cambridge': 11800,
+        'East Cambridge': 9500,  # Maps to Area 1/East Cambridge
+        'Highlands': 7100,  # Maps to Cambridge Highlands
+        'Inman/Harrington': 7100,  # Maps to Area 3/Wellington-Harrington
+        'Baldwin': 7100,  # Assign to Agassiz neighborhood population
         'Unknown': 1200
     }
 
@@ -270,7 +275,6 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
         ))
     
     # Add traces for each neighborhood (initially hidden)
-    colors = px.colors.qualitative.Set3
     neighborhood_traces_count = 0
     
     for i, neighborhood in enumerate(neighborhoods):
@@ -279,14 +283,14 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
             if len(neighborhood_data) > 0:
                 neighborhood_year_labels = create_year_labels(neighborhood_data['Year'], has_2025_data)
                 
-                # Add actual neighborhood data
+                # Add actual neighborhood data - use consistent red color like Cambridge overall
                 fig.add_trace(go.Scatter(
                     x=neighborhood_data['Year'],
                     y=neighborhood_data['Crime_Count'],
                     mode='lines+markers',
                     name=neighborhood,
-                    line=dict(color=colors[i % len(colors)], width=2),
-                    marker=dict(size=6),
+                    line=dict(color='#d63031', width=3),  # Same color and width as Cambridge overall
+                    marker=dict(size=8, color='#d63031'),  # Same size and color as Cambridge overall
                     visible=False,
                     customdata=neighborhood_year_labels,
                     hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
@@ -300,15 +304,17 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
                         x=neighborhood_national_data['Year'],
                         y=neighborhood_national_data['Crime_Count'],
                         mode='lines',
-                        name=f'National Average ({neighborhood})',
-                        line=dict(color=colors[i % len(colors)], width=1, dash='dot'),
+                        name=f'US National Average',  # Consistent name like Cambridge view
+                        line=dict(color='#636e72', width=2, dash='dot'),  # Same gray dotted style
                         visible=False,
                         customdata=neighborhood_national_year_labels,
                         hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
                         showlegend=False  # Don't clutter legend with national average lines
                     ))
-                
-                neighborhood_traces_count += 2 if not neighborhood_national_data.empty else 1
+                    neighborhood_traces_count += 2
+                else:
+                    neighborhood_traces_count += 1
+                    print(f"Warning: No national average data found for {neighborhood}")
     
     # Create dropdown menu
     dropdown_buttons = []
@@ -338,9 +344,12 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
                 # Show neighborhood data trace
                 if trace_name == neighborhood:
                     visible_list[i] = True
-                # Show national average trace for this neighborhood
-                elif trace_name == f'National Average ({neighborhood})':
-                    visible_list[i] = True
+                # Show national average trace (look for the one right after this neighborhood)
+                elif trace_name == 'US National Average' and i > 1:  # Not the Cambridge national average
+                    # Check if this national average trace comes right after the neighborhood trace
+                    prev_trace = fig.data[i-1] if i > 0 else None
+                    if prev_trace and prev_trace.name == neighborhood:
+                        visible_list[i] = True
             
             dropdown_buttons.append(dict(
                 label=neighborhood,
