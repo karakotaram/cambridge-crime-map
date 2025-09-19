@@ -301,8 +301,17 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
     
     dropdown_buttons.append(dict(
         label="All Neighborhoods",
-        method="restyle",
-        args=[all_neighborhoods_update, [0, 1]]  # Specify trace indices explicitly
+        method="update",
+        args=[{
+            'x': [all_neighborhoods_data['Year'].tolist(), cambridge_national_data['Year'].tolist()],
+            'y': [all_neighborhoods_data['Crime_Count'].tolist(), cambridge_national_data['Crime_Count'].tolist()],
+            'customdata': [year_labels, cambridge_national_year_labels],
+            'name': ['All Neighborhoods', 'US National Average'],
+            'hovertemplate': [
+                '<b>All Neighborhoods</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>',
+                '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+            ]
+        }, {}, [0, 1]]  # Update traces 0 and 1, no layout changes
     ))
     
     # Individual neighborhood buttons - replace chart data dynamically
@@ -324,24 +333,35 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                 national_y = cambridge_national_data['Crime_Count'].tolist()
                 national_customdata = cambridge_national_year_labels
             
-            # Prepare the data update for this neighborhood
-            update_data = {
-                'x': [neighborhood_data['Year'].tolist(), national_x],
-                'y': [neighborhood_data['Crime_Count'].tolist(), national_y],
-                'customdata': [neighborhood_year_labels, national_customdata],
-                'name': [neighborhood, 'US National Average'],
-                'hovertemplate': [
-                    f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>',
-                    '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
-                ]
-            }
-            
-            # Add button that updates the existing traces
+            # Update trace 0 (neighborhood data) and trace 1 (national average) separately
             dropdown_buttons.append(dict(
                 label=neighborhood,
                 method="restyle",
-                args=[update_data, [0, 1]]  # Specify trace indices explicitly
+                args=[{
+                    'x': [neighborhood_data['Year'].tolist()],
+                    'y': [neighborhood_data['Crime_Count'].tolist()], 
+                    'customdata': [neighborhood_year_labels],
+                    'name': [neighborhood],
+                    'hovertemplate': [f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>']
+                }, 0]  # Update only trace 0
             ))
+            
+            # Add a second update for the national average trace
+            # We'll combine this into a single button using Plotly.update instead
+            dropdown_buttons[-1] = dict(
+                label=neighborhood,
+                method="update",
+                args=[{
+                    'x': [neighborhood_data['Year'].tolist(), national_x],
+                    'y': [neighborhood_data['Crime_Count'].tolist(), national_y],
+                    'customdata': [neighborhood_year_labels, national_customdata],
+                    'name': [neighborhood, 'US National Average'],
+                    'hovertemplate': [
+                        f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>',
+                        '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+                    ]
+                }, {}, [0, 1]]  # Update traces 0 and 1, no layout changes
+            )
     
     # Update layout
     fig.update_layout(
