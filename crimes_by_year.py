@@ -226,7 +226,7 @@ def create_yearly_analysis(df):
     return all_data, has_2025_data
 
 
-def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
+def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
     """Create interactive Plotly chart for crimes by year with neighborhood filtering."""
     
     # Load and process data
