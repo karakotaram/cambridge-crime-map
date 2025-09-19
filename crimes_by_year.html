@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cambridge Crimes by Year | Crime Data Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -262,13 +263,7 @@
 <option value="West Cambridge">West Cambridge</option>
                 </select>
             </div>
-            <html>
-<head><meta charset="utf-8" /></head>
-<body>
-    <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="crimes-chart" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("crimes-chart")) {                    Plotly.newPlot(                        "crimes-chart",                        [{"customdata":["2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025E"],"hovertemplate":"\u003cb\u003e%{fullData.name}\u003c\u002fb\u003e\u003cbr\u003eYear: %{customdata}\u003cbr\u003eCrimes: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#d63031","width":3},"marker":{"color":"#d63031","size":8},"mode":"lines+markers","name":"All Neighborhoods","x":{"dtype":"i2","bdata":"2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"y":{"dtype":"f8","bdata":"AAAAAADAdUAAAAAAAHB1QAAAAAAAYH5AAAAAAADQgEAAAAAAADB\u002fQAAAAAAAwHdAAAAAAACAd0AAAAAAAFB2QAAAAAAAoHdAAAAAAADQeUAAAAAAABB5QAAAAAAAAHtAAAAAAABQfEAAAAAAAJCBQAAAAAAAyIFAAAAAAAA4gEAAAAAAALB+QA=="},"type":"scatter"},{"customdata":["2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025E"],"hovertemplate":"\u003cb\u003e%{fullData.name}\u003c\u002fb\u003e\u003cbr\u003eYear: %{customdata}\u003cbr\u003eExpected Crimes: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#636e72","dash":"dot","width":2},"mode":"lines","name":"US National Average","x":{"dtype":"i2","bdata":"2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"y":{"dtype":"f8","bdata":"AAAAAABQfEBmZmZmZoZ6QM3MzMzMpHlAAAAAAADgeUAzMzMzM\u002fN4QAAAAAAAsHlAAAAAAADIekCamZmZmSl8QM3MzMzMxHtAZmZmZmZ2e0DNzMzMzER7QGZmZmZmlnxAmpmZmZnhfEAAAAAAAPB7QJqZmZmZ4XpAAAAAAABIekCamZmZmbF6QA=="},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"title":{"font":{"size":24,"color":"#2c3e50"},"text":"Violent Crimes in Cambridge by Year","x":0.5},"xaxis":{"title":{"font":{"size":16},"text":"Year"},"tickfont":{"size":14},"gridcolor":"#ecf0f1","tickmode":"array","tickvals":[2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"ticktext":["2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025E"]},"yaxis":{"title":{"font":{"size":16},"text":"Number of Violent Crimes"},"tickfont":{"size":14},"gridcolor":"#ecf0f1"},"font":{"family":"Segoe UI, Arial"},"plot_bgcolor":"white","paper_bgcolor":"white","hovermode":"x unified"},                        {"displayModeBar": true, "displaylogo": false, "responsive": true}                    )                };            </script>        </div>
-</body>
-</html>
+            <div id="crimes-chart" style="height: 600px; width: 100%;"></div>
             
             <script>
             const neighborhoodData = {
@@ -281,94 +276,227 @@
   'Baldwin': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [6.0, 6.0, 15.0, 7.0, 6.0, 8.0, 2.0, 2.0, 7.0, 5.0, 5.0, 4.0, 9.0, 7.0, 8.0, 8.0, 1.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [28.7, 27.5, 27.5, 26.1, 27.0, 27.4, 24.6, 24.6, 27.5, 30.5, 25.8, 25.8, 26.3, 26.5, 26.7, 28.0, 26.0]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [30.5, 28.7, 27.5, 27.5, 26.1, 25.8, 26.5, 27.5, 26.7, 26.3, 26.0, 27.4, 28.0, 27.0, 25.8, 24.6, 24.6]
   },
   'Cambridgeport': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [69.0, 67.0, 77.0, 89.0, 98.0, 78.0, 71.0, 77.0, 81.0, 72.0, 73.0, 75.0, 65.0, 111.0, 118.0, 91.0, 111.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [57.3, 55.0, 54.9, 52.2, 54.1, 54.9, 49.3, 49.3, 54.9, 61.0, 51.7, 51.6, 52.7, 52.9, 53.5, 55.9, 52.1]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [61.0, 57.3, 55.0, 54.9, 52.2, 51.6, 52.9, 54.9, 53.5, 52.7, 52.1, 54.9, 55.9, 54.1, 51.7, 49.3, 49.3]
   },
   'East Cambridge': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [46.0, 40.0, 51.0, 46.0, 59.0, 39.0, 43.0, 45.0, 30.0, 42.0, 45.0, 25.0, 58.0, 43.0, 45.0, 40.0, 35.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [38.3, 36.8, 36.7, 35.0, 36.2, 36.7, 33.0, 33.0, 36.8, 40.8, 34.6, 34.5, 35.2, 35.4, 35.8, 37.4, 34.8]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [40.8, 38.3, 36.8, 36.8, 35.0, 34.5, 35.4, 36.7, 35.8, 35.2, 34.8, 36.7, 37.4, 36.2, 34.6, 33.0, 33.0]
   },
   'Highlands': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [8.0, 5.0, 6.0, 11.0, 7.0, 7.0, 14.0, 5.0, 10.0, 9.0, 12.0, 15.0, 8.0, 29.0, 22.0, 17.0, 12.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [28.7, 27.5, 27.5, 26.1, 27.0, 27.4, 24.6, 24.6, 27.5, 30.5, 25.8, 25.8, 26.3, 26.5, 26.7, 28.0, 26.0]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [30.5, 28.7, 27.5, 27.5, 26.1, 25.8, 26.5, 27.5, 26.7, 26.3, 26.0, 27.4, 28.0, 27.0, 25.8, 24.6, 24.6]
   },
   'Inman/Harrington': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [29.0, 35.0, 45.0, 47.0, 24.0, 26.0, 21.0, 26.0, 25.0, 26.0, 24.0, 16.0, 23.0, 27.0, 22.0, 28.0, 19.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [28.7, 27.5, 27.5, 26.1, 27.0, 27.4, 24.6, 24.6, 27.5, 30.5, 25.8, 25.8, 26.3, 26.5, 26.7, 28.0, 26.0]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [30.5, 28.7, 27.5, 27.5, 26.1, 25.8, 26.5, 27.5, 26.7, 26.3, 26.0, 27.4, 28.0, 27.0, 25.8, 24.6, 24.6]
   },
   'MIT': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [5.0, 6.0, 12.0, 5.0, 10.0, 14.0, 4.0, 5.0, 8.0, 8.0, 7.0, 4.0, 11.0, 9.0, 9.0, 3.0, 8.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [23.8, 22.8, 22.8, 21.7, 22.5, 22.8, 20.5, 20.5, 22.8, 25.3, 21.5, 21.5, 21.9, 22.0, 22.2, 23.2, 21.6]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [25.3, 23.8, 22.8, 22.8, 21.7, 21.5, 22.0, 22.8, 22.2, 21.9, 21.6, 22.8, 23.2, 22.5, 21.5, 20.5, 20.5]
   },
   'Mid-Cambridge': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [22.0, 41.0, 39.0, 67.0, 40.0, 27.0, 39.0, 38.0, 52.0, 44.0, 39.0, 53.0, 69.0, 69.0, 58.0, 72.0, 58.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [38.3, 36.8, 36.7, 35.0, 36.2, 36.7, 33.0, 33.0, 36.8, 40.8, 34.6, 34.5, 35.2, 35.4, 35.8, 37.4, 34.8]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [40.8, 38.3, 36.8, 36.8, 35.0, 34.5, 35.4, 36.7, 35.8, 35.2, 34.8, 36.7, 37.4, 36.2, 34.6, 33.0, 33.0]
   },
   'North Cambridge': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [38.0, 24.0, 44.0, 52.0, 50.0, 34.0, 33.0, 25.0, 28.0, 31.0, 37.0, 45.0, 50.0, 58.0, 48.0, 49.0, 72.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [57.3, 55.0, 54.9, 52.2, 54.1, 54.9, 49.3, 49.3, 54.9, 61.0, 51.7, 51.6, 52.7, 52.9, 53.5, 55.9, 52.1]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [61.0, 57.3, 55.0, 54.9, 52.2, 51.6, 52.9, 54.9, 53.5, 52.7, 52.1, 54.9, 55.9, 54.1, 51.7, 49.3, 49.3]
   },
   'Peabody': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [20.0, 9.0, 21.0, 24.0, 17.0, 11.0, 12.0, 18.0, 17.0, 15.0, 13.0, 23.0, 22.0, 18.0, 22.0, 22.0, 22.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [23.8, 22.8, 22.8, 21.7, 22.5, 22.8, 20.5, 20.5, 22.8, 25.3, 21.5, 21.5, 21.9, 22.0, 22.2, 23.2, 21.6]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [25.3, 23.8, 22.8, 22.8, 21.7, 21.5, 22.0, 22.8, 22.2, 21.9, 21.6, 22.8, 23.2, 22.5, 21.5, 20.5, 20.5]
   },
   'Riverside': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [33.0, 37.0, 60.0, 64.0, 49.0, 46.0, 49.0, 37.0, 44.0, 56.0, 53.0, 66.0, 58.0, 81.0, 76.0, 76.0, 58.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [33.5, 32.1, 32.1, 30.5, 31.6, 32.1, 28.8, 28.8, 32.1, 35.6, 30.2, 30.2, 30.8, 30.9, 31.2, 32.7, 30.4]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [35.6, 33.5, 32.1, 32.1, 30.5, 30.2, 30.9, 32.1, 31.2, 30.8, 30.4, 32.1, 32.7, 31.6, 30.2, 28.8, 28.8]
   },
   'Strawberry Hill': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [3.0, 6.0, 5.0, 3.0, 5.0, 2.0, 6.0, 1.0, 3.0, 7.0, 2.0, 2.0, 2.0, 4.0, 8.0, 7.0, 10.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [28.7, 27.5, 27.5, 26.1, 27.0, 27.4, 24.6, 24.6, 27.5, 30.5, 25.8, 25.8, 26.3, 26.5, 26.7, 28.0, 26.0]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [30.5, 28.7, 27.5, 27.5, 26.1, 25.8, 26.5, 27.5, 26.7, 26.3, 26.0, 27.4, 28.0, 27.0, 25.8, 24.6, 24.6]
   },
   'The Port': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [50.0, 46.0, 62.0, 58.0, 74.0, 42.0, 49.0, 46.0, 32.0, 57.0, 45.0, 61.0, 54.0, 66.0, 75.0, 56.0, 56.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [43.2, 41.4, 41.4, 39.4, 40.7, 41.3, 37.1, 37.1, 41.4, 45.9, 38.9, 38.9, 39.7, 39.9, 40.3, 42.2, 39.2]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [45.9, 43.2, 41.4, 41.4, 39.4, 38.9, 39.9, 41.4, 40.3, 39.7, 39.2, 41.3, 42.2, 40.7, 38.9, 37.1, 37.1]
   },
   'West Cambridge': {
     years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
     crimes: [19.0, 21.0, 49.0, 65.0, 60.0, 46.0, 33.0, 32.0, 41.0, 41.0, 46.0, 43.0, 24.0, 40.0, 58.0, 50.0, 24.0],
-    nationalYears: [2010, 2011, 2016, 2013, 2022, 2020, 2024, 2025, 2012, 2009, 2023, 2014, 2018, 2015, 2017, 2021, 2019],
-    nationalCrimes: [47.6, 45.7, 45.6, 43.4, 44.9, 45.6, 40.9, 40.9, 45.7, 50.7, 42.9, 42.9, 43.8, 44.0, 44.4, 46.5, 43.3]
+    nationalYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    nationalCrimes: [50.7, 47.6, 45.7, 45.7, 43.4, 42.9, 44.0, 45.6, 44.4, 43.8, 43.3, 45.6, 46.5, 44.9, 42.9, 40.9, 40.9]
   },
 };
 
             
-            function updateChart(selectedNeighborhood) {
-                const data = neighborhoodData[selectedNeighborhood];
-                if (data) {
-                    Plotly.restyle('crimes-chart', {
-                        x: [data.years, data.nationalYears],
-                        y: [data.crimes, data.nationalCrimes],
-                        name: [selectedNeighborhood, 'US National Average']
-                    }, [0, 1]);
-                }
-            }
+// Initialize the plotly chart using the "All Neighborhoods" data
+function initializeChart() {
+    const data = neighborhoodData['All Neighborhoods'];
+    
+    const trace1 = {
+        x: data.years,
+        y: data.crimes,
+        mode: 'lines+markers',
+        name: 'All Neighborhoods',
+        line: {color: '#d63031', width: 3},
+        marker: {size: 8, color: '#d63031'},
+        customdata: data.years.map(year => year === 2025 ? '2025E' : year.toString()),
+        hovertemplate: '<b>All Neighborhoods</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
+    };
+    
+    const trace2 = {
+        x: data.nationalYears,
+        y: data.nationalCrimes,
+        mode: 'lines',
+        name: 'US National Average',
+        line: {color: '#636e72', width: 2, dash: 'dot'},
+        customdata: data.nationalYears.map(year => year === 2025 ? '2025E' : year.toString()),
+        hovertemplate: '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+    };
+    
+    const layout = {
+        title: {
+            text: 'Violent Crimes in Cambridge by Year',
+            font: {size: 24, color: '#2c3e50'},
+            x: 0.5
+        },
+        xaxis: {
+            title: {text: 'Year', font: {size: 16}},
+            tickfont: {size: 14},
+            gridcolor: '#ecf0f1',
+            tickmode: 'array',
+            tickvals: data.years,
+            ticktext: data.years.map(year => year === 2025 ? '2025E' : year.toString())
+        },
+        yaxis: {
+            title: {text: 'Number of Violent Crimes', font: {size: 16}},
+            tickfont: {size: 14},
+            gridcolor: '#ecf0f1'
+        },
+        font: {family: 'Segoe UI, Arial'},
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
+        hovermode: 'x unified'
+    };
+    
+    Plotly.newPlot('crimes-chart', [trace1, trace2], layout, {
+        displayModeBar: true,
+        displaylogo: false,
+        responsive: true
+    });
+}
+
+// Use EXACT same approach as initializeChart - purge and recreate for guaranteed clean charts
+function updateChart(selectedNeighborhood) {
+    console.log('=== UPDATING CHART FOR:', selectedNeighborhood, '===');
+    const data = neighborhoodData[selectedNeighborhood];
+    
+    if (data) {
+        console.log('Raw data for', selectedNeighborhood, ':', data);
+        console.log('Years (sorted):', data.years);
+        console.log('Crimes (matching years):', data.crimes);
+        console.log('National years (sorted):', data.nationalYears);
+        console.log('National crimes (matching years):', data.nationalCrimes);
+        
+        // STEP 1: Completely clear the chart (same as All Neighborhoods)
+        Plotly.purge('crimes-chart');
+        console.log('Chart purged successfully');
+        
+        // STEP 2: Create traces using EXACT same structure as initializeChart
+        const trace1 = {
+            x: data.years,  // Pre-sorted chronological years
+            y: data.crimes, // Crime counts matching the years
+            mode: 'lines+markers',
+            name: selectedNeighborhood,
+            line: {color: '#d63031', width: 3},
+            marker: {size: 8, color: '#d63031'},
+            customdata: data.years.map(year => year === 2025 ? '2025E' : year.toString()),
+            hovertemplate: `<b>${selectedNeighborhood}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>`
+        };
+        
+        const trace2 = {
+            x: data.nationalYears,  // Pre-sorted chronological years
+            y: data.nationalCrimes, // Pre-calculated national average for this neighborhood
+            mode: 'lines',
+            name: 'US National Average',
+            line: {color: '#636e72', width: 2, dash: 'dot'},
+            customdata: data.nationalYears.map(year => year === 2025 ? '2025E' : year.toString()),
+            hovertemplate: '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+        };
+        
+        console.log('Trace 1 (neighborhood) x:', trace1.x);
+        console.log('Trace 1 (neighborhood) y:', trace1.y);
+        console.log('Trace 2 (national) x:', trace2.x);
+        console.log('Trace 2 (national) y:', trace2.y);
+        
+        // STEP 3: Create layout using EXACT same structure as initializeChart
+        const layout = {
+            title: {
+                text: 'Violent Crimes in Cambridge by Year',
+                font: {size: 24, color: '#2c3e50'},
+                x: 0.5
+            },
+            xaxis: {
+                title: {text: 'Year', font: {size: 16}},
+                tickfont: {size: 14},
+                gridcolor: '#ecf0f1',
+                tickmode: 'array',
+                tickvals: data.years,  // Use the pre-sorted years
+                ticktext: data.years.map(year => year === 2025 ? '2025E' : year.toString())
+            },
+            yaxis: {
+                title: {text: 'Number of Violent Crimes', font: {size: 16}},
+                tickfont: {size: 14},
+                gridcolor: '#ecf0f1'
+            },
+            font: {family: 'Segoe UI, Arial'},
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            hovermode: 'x unified'
+        };
+        
+        // STEP 4: Create fresh chart using EXACT same call as initializeChart
+        Plotly.newPlot('crimes-chart', [trace1, trace2], layout, {
+            displayModeBar: true,
+            displaylogo: false,
+            responsive: true
+        });
+        
+        console.log('=== CHART RECREATED SUCCESSFULLY FOR:', selectedNeighborhood, '===');
+    } else {
+        console.error('No data found for:', selectedNeighborhood);
+    }
+}
+
+// Initialize when page loads
+window.onload = function() {
+    initializeChart();
+};
             </script>
         </div>
         
