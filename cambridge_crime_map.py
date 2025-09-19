@@ -337,32 +337,33 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     # Add navigation header
     nav_html = '''
     <div id="navHeader" style="position: fixed; top: 0; left: 0; right: 0; 
-                               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                               color: white; padding: 15px; z-index: 10000;
-                               box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                               font-family: 'Segoe UI', Arial, sans-serif;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+                               background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+                               color: white; padding: 20px 0; z-index: 10000;
+                               box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem;">
             <div>
-                <h1 style="margin: 0; font-size: 1.8rem;">🗺️ Cambridge Crime Map</h1>
-                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Interactive map of violent crimes, 2009-Present</p>
+                <h1 style="margin: 0; font-size: 2.2rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Cambridge Crime Map</h1>
+                <p style="margin: 8px 0 0 0; font-size: 1rem; opacity: 0.9; font-weight: 300;">Interactive map of violent crimes, 2009-Present</p>
             </div>
-            <a href="/" style="background: rgba(255,255,255,0.2); color: white; 
-                                          padding: 8px 16px; border-radius: 20px; text-decoration: none; 
-                                          font-weight: bold; transition: all 0.3s ease;"
-               onmouseover="this.style.background='rgba(255,255,255,0.3)'"
-               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                ← All Analyses
+            <a href="/" style="background: rgba(255,255,255,0.15); color: white; 
+                                          padding: 12px 24px; border-radius: 8px; text-decoration: none; 
+                                          font-weight: 600; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.2);"
+               onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-1px)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                ← Back to Analysis Home
             </a>
         </div>
     </div>
     
     <style>
-        body { margin-top: 80px !important; }
+        body { margin-top: 100px !important; }
         
         @media (max-width: 768px) {
-            #navHeader > div { flex-direction: column; text-align: center; gap: 10px; }
-            #navHeader h1 { font-size: 1.5rem; }
-            body { margin-top: 100px !important; }
+            #navHeader > div { flex-direction: column; text-align: center; gap: 15px; }
+            #navHeader h1 { font-size: 1.8rem; }
+            #navHeader p { font-size: 0.9rem; }
+            body { margin-top: 140px !important; }
         }
     </style>
     '''
@@ -529,7 +530,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
 def main():
     """Main function to create and save the map."""
     # Create map
-    crime_map = create_cambridge_crime_map('../../crimedata.csv')
+    crime_map = create_cambridge_crime_map('./crimedata.csv')
     
     # Save map
     output_file = 'cambridge_crime_map.html'
@@ -541,9 +542,9 @@ def main():
     print(f"\nSummary:")
     
     # Load data for different time periods
-    all_data = load_and_process_data('../../crimedata.csv', 'all')
-    five_year_data = load_and_process_data('../../crimedata.csv', '5_years')
-    one_year_data = load_and_process_data('../../crimedata.csv', '1_year')
+    all_data = load_and_process_data('./crimedata.csv', 'all')
+    five_year_data = load_and_process_data('./crimedata.csv', '5_years')
+    one_year_data = load_and_process_data('./crimedata.csv', '1_year')
     
     print(f"Violent crimes only:")
     print(f"All time: {len(all_data):,} incidents at {len(all_data.groupby(['lat', 'lon'])) if len(all_data) > 0 else 0} locations")

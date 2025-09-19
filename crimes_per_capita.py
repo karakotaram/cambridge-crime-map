@@ -102,7 +102,7 @@ def create_per_capita_analysis(df, selected_year=None):
     return crime_counts, period_label
 
 
-def create_crimes_per_capita_chart(csv_path='../../crimedata.csv'):
+def create_crimes_per_capita_chart(csv_path='./crimedata.csv'):
     """Create interactive Plotly chart for crimes per capita by neighborhood with year filtering."""
     
     # Load and process data
@@ -306,99 +306,154 @@ def main():
         }}
         
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #2c3e50;
             background: #f8f9fa;
         }}
         
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 2rem;
+            padding: 3rem 0;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }}
+        
+        .header::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            opacity: 0.3;
+        }}
+        
+        .header-content {{
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }}
         
         .header h1 {{
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }}
         
         .header p {{
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             opacity: 0.9;
+            font-weight: 300;
         }}
         
         .nav {{
             background: white;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-bottom: 3px solid #e9ecef;
+        }}
+        
+        .nav-content {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }}
         
         .nav a {{
-            color: #d63031;
+            color: #1e3c72;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
         }}
         
         .nav a:hover {{
-            text-decoration: underline;
+            color: #2a5298;
+            transform: translateX(-2px);
+        }}
+        
+        .nav a::before {{
+            content: '←';
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
         }}
         
         .container {{
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 3rem 2rem;
         }}
         
         .stats-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
-            margin: 2rem 0;
+            margin-bottom: 3rem;
         }}
         
         .stat-card {{
             background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             text-align: center;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }}
+        
+        .stat-card:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }}
         
         .stat-number {{
-            font-size: 2rem;
-            font-weight: bold;
-            color: #d63031;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e3c72;
             display: block;
+            margin-bottom: 0.5rem;
         }}
         
         .stat-label {{
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+            color: #6c757d;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
         }}
         
         .chart-container {{
             background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin: 2rem 0;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin: 3rem 0;
+            border: 1px solid #e9ecef;
         }}
         
         .info-box {{
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            margin: 3rem 0;
+            border: 1px solid #e9ecef;
         }}
         
         .info-box h3 {{
-            color: #0c5460;
-            margin-bottom: 1rem;
+            color: #1e3c72;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
         }}
         
         .info-box ul {{
@@ -407,15 +462,20 @@ def main():
         }}
         
         .info-box li {{
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
             position: relative;
+            color: #495057;
+            line-height: 1.7;
         }}
         
         .info-box li::before {{
-            content: "ℹ️";
+            content: "→";
+            color: #1e3c72;
+            font-weight: bold;
             position: absolute;
             left: 0;
+            top: 0;
         }}
         
         .footer {{
@@ -443,12 +503,16 @@ def main():
 </head>
 <body>
     <div class="header">
-        <h1>📊 Crimes Per Capita by Neighborhood</h1>
-        <p>Violent crime rates per 1,000 residents across Cambridge neighborhoods</p>
+        <div class="header-content">
+            <h1>Crimes Per Capita by Neighborhood</h1>
+            <p>Violent crime rates per 1,000 residents across Cambridge neighborhoods</p>
+        </div>
     </div>
     
     <div class="nav">
-        <a href="/">← Back to Analysis Home</a>
+        <div class="nav-content">
+            <a href="/">Back to Analysis Home</a>
+        </div>
     </div>
     
     <div class="container">
