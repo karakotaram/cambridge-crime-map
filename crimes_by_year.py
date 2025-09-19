@@ -304,12 +304,13 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                         x=neighborhood_national_data['Year'],
                         y=neighborhood_national_data['Crime_Count'],
                         mode='lines',
-                        name=f'US National Average',  # Consistent name like Cambridge view
+                        name=f'US National Average ({neighborhood})',  # Unique name per neighborhood
                         line=dict(color='#636e72', width=2, dash='dot'),  # Same gray dotted style
                         visible=False,
                         customdata=neighborhood_national_year_labels,
-                        hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
-                        showlegend=False  # Don't clutter legend with national average lines
+                        hovertemplate='<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
+                        showlegend=True,  # Show in legend but will be hidden by default
+                        legendrank=1000  # Put at bottom of legend
                     ))
                     neighborhood_traces_count += 2
                 else:
@@ -344,12 +345,9 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                 # Show neighborhood data trace
                 if trace_name == neighborhood:
                     visible_list[i] = True
-                # Show national average trace (look for the one right after this neighborhood)
-                elif trace_name == 'US National Average' and i > 1:  # Not the Cambridge national average
-                    # Check if this national average trace comes right after the neighborhood trace
-                    prev_trace = fig.data[i-1] if i > 0 else None
-                    if prev_trace and prev_trace.name == neighborhood:
-                        visible_list[i] = True
+                # Show national average trace for this specific neighborhood
+                elif trace_name == f'US National Average ({neighborhood})':
+                    visible_list[i] = True
             
             dropdown_buttons.append(dict(
                 label=neighborhood,
