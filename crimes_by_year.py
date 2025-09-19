@@ -301,8 +301,8 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
     
     dropdown_buttons.append(dict(
         label="All Neighborhoods",
-        method="update",
-        args=[all_neighborhoods_update, {"visible": all_visible}]
+        method="restyle",
+        args=[all_neighborhoods_update]
     ))
     
     # Individual neighborhood buttons - replace chart data dynamically
@@ -320,10 +320,11 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                 'hovertemplate': [f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>']
             }
             
-            # Add national average data if available
+            # Add national average data if available for this specific neighborhood
             neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
             if not neighborhood_national_data.empty:
                 neighborhood_national_year_labels = create_year_labels(neighborhood_national_data['Year'], has_2025_data)
+                # Update the second trace (national average) with this neighborhood's national data
                 update_data['x'].append(neighborhood_national_data['Year'].tolist())
                 update_data['y'].append(neighborhood_national_data['Crime_Count'].tolist())
                 update_data['customdata'].append(neighborhood_national_year_labels)
@@ -331,7 +332,7 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                 update_data['hovertemplate'].append('<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>')
                 update_visible = [True, True]
             else:
-                # If no national average, hide the second trace
+                # If no national average data for this neighborhood, hide the second trace
                 update_data['x'].append([])
                 update_data['y'].append([])
                 update_data['customdata'].append([])
@@ -342,8 +343,8 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
             # Add button that updates the existing traces
             dropdown_buttons.append(dict(
                 label=neighborhood,
-                method="update",
-                args=[update_data, {"visible": update_visible}]
+                method="restyle",
+                args=[update_data]
             ))
     
     # Update layout
