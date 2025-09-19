@@ -271,7 +271,8 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
             line=dict(color='#636e72', width=2, dash='dot'),
             visible=True,
             customdata=cambridge_national_year_labels,
-            hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+            hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
+            showlegend=True  # Explicitly show in legend
         ))
     
     # Add traces for each neighborhood (initially hidden)
@@ -295,18 +296,25 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                     customdata=neighborhood_year_labels,
                     hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
                 ))
-                neighborhood_traces_count += 1
-    
-    # Add a single national average trace that will be updated dynamically
-    fig.add_trace(go.Scatter(
-        x=[],  # Will be updated by dropdown
-        y=[],  # Will be updated by dropdown
-        mode='lines',
-        name='US National Average',
-        line=dict(color='#636e72', width=2, dash='dot'),
-        visible=False,
-        hovertemplate='<b>US National Average</b><br>Year: %{x}<br>Expected Crimes: %{y}<extra></extra>'
-    ))
+                
+                # Add national average for this specific neighborhood (hidden by default)
+                neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
+                if not neighborhood_national_data.empty:
+                    neighborhood_national_year_labels = create_year_labels(neighborhood_national_data['Year'], has_2025_data)
+                    fig.add_trace(go.Scatter(
+                        x=neighborhood_national_data['Year'],
+                        y=neighborhood_national_data['Crime_Count'],
+                        mode='lines',
+                        name='US National Average',
+                        line=dict(color='#636e72', width=2, dash='dot'),
+                        visible=False,
+                        customdata=neighborhood_national_year_labels,
+                        hovertemplate='<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
+                        showlegend=False  # Don't show in legend to avoid duplicates
+                    ))
+                    neighborhood_traces_count += 2
+                else:
+                    neighborhood_traces_count += 1
     
     # Create dropdown menu
     dropdown_buttons = []
@@ -330,37 +338,28 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
         if len(neighborhood_data) > 0:
             visible_list = [False] * total_traces
             
-            # Get national average data for this neighborhood
-            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
-            
-            # Show the neighborhood trace and the single national average trace
+            # Find the neighborhood trace and its corresponding national average trace
+            neighborhood_trace_found = False
             for i, trace in enumerate(fig.data):
                 trace_name = trace.name
+                
                 # Show neighborhood data trace
                 if trace_name == neighborhood:
                     visible_list[i] = True
-                # Show the single national average trace (last trace)
-                elif trace_name == 'US National Average':
+                    neighborhood_trace_found = True
+                    
+                # Show the national average trace that comes right after this neighborhood
+                elif (trace_name == 'US National Average' and 
+                      neighborhood_trace_found and 
+                      i > 0 and 
+                      fig.data[i-1].name == neighborhood):
                     visible_list[i] = True
-            
-            # Prepare data update for the national average trace
-            if not neighborhood_national_data.empty:
-                national_years = neighborhood_national_data['Year'].tolist()
-                national_crimes = neighborhood_national_data['Crime_Count'].tolist()
-            else:
-                national_years = []
-                national_crimes = []
+                    neighborhood_trace_found = False  # Reset for next neighborhood
             
             dropdown_buttons.append(dict(
                 label=neighborhood,
                 method="update",
-                args=[
-                    {
-                        "visible": visible_list,
-                        "x": [trace.x if trace.name != 'US National Average' else national_years for trace in fig.data],
-                        "y": [trace.y if trace.name != 'US National Average' else national_crimes for trace in fig.data]
-                    }
-                ]
+                args=[{"visible": visible_list}]
             ))
     
     # Update layout
