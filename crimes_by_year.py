@@ -313,7 +313,7 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
     # Create dropdown menu
     dropdown_buttons = []
     
-    # Calculate total traces: Cambridge data + Cambridge national avg + all neighborhood traces
+    # Calculate total traces
     total_traces = len(fig.data)
     
     # All neighborhoods button (show Cambridge data + national average)
@@ -325,22 +325,22 @@ def create_crimes_by_year_chart(csv_path='../../crimedata.csv'):
     ))
     
     # Individual neighborhood buttons
-    trace_index = 2  # Start after Cambridge data and national average
     non_unknown_neighborhoods = [n for n in neighborhoods if n != 'Unknown']
     
     for neighborhood in non_unknown_neighborhoods:
         neighborhood_data = yearly_data[yearly_data['Neighborhood'] == neighborhood]
         if len(neighborhood_data) > 0:
             visible_list = [False] * total_traces
-            visible_list[trace_index] = True  # Show neighborhood data
             
-            # Check if national average exists for this neighborhood and show it too
-            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
-            if not neighborhood_national_data.empty and trace_index + 1 < total_traces:
-                visible_list[trace_index + 1] = True  # Show neighborhood national average
-                trace_index += 2
-            else:
-                trace_index += 1
+            # Find the traces for this neighborhood by checking trace names
+            for i, trace in enumerate(fig.data):
+                trace_name = trace.name
+                # Show neighborhood data trace
+                if trace_name == neighborhood:
+                    visible_list[i] = True
+                # Show national average trace for this neighborhood
+                elif trace_name == f'National Average ({neighborhood})':
+                    visible_list[i] = True
             
             dropdown_buttons.append(dict(
                 label=neighborhood,
