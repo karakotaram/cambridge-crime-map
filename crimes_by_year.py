@@ -363,6 +363,35 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                 }, {}, [0, 1]]  # Update traces 0 and 1, no layout changes
             )
     
+    
+    # Add cases for each neighborhood
+    for neighborhood in neighborhoods:
+        neighborhood_data = yearly_data[yearly_data['Neighborhood'] == neighborhood]
+        if len(neighborhood_data) > 0:
+            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
+            if not neighborhood_national_data.empty:
+                national_x = neighborhood_national_data['Year'].tolist()
+                national_y = neighborhood_national_data['Crime_Count'].tolist()
+            else:
+                national_x = cambridge_national_data['Year'].tolist()
+                national_y = cambridge_national_data['Crime_Count'].tolist()
+            
+    
+    # Create simple dropdown buttons that call JavaScript function
+    dropdown_buttons = []
+    dropdown_buttons.append({
+        'label': 'All Neighborhoods',
+        'method': 'skip',  # We'll handle this with custom JS
+    })
+    
+    for neighborhood in neighborhoods:
+        neighborhood_data = yearly_data[yearly_data['Neighborhood'] == neighborhood]
+        if len(neighborhood_data) > 0:
+            dropdown_buttons.append({
+                'label': neighborhood,
+                'method': 'skip',  # We'll handle this with custom JS
+            })
+    
     # Update layout
     fig.update_layout(
         title=dict(
@@ -386,31 +415,9 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family="Segoe UI, Arial"),
-        hovermode='x unified',
-        updatemenus=[dict(
-            buttons=dropdown_buttons,
-            direction="down",
-            showactive=True,
-            x=0.02,
-            xanchor="left",
-            y=0.98,
-            yanchor="top",
-            bgcolor='white',
-            bordercolor='#bdc3c7',
-            borderwidth=1
-        )],
-        annotations=[dict(
-            text="Filter by Neighborhood:",
-            showarrow=False,
-            x=0.02,
-            y=1.05,
-            xref="paper",
-            yref="paper",
-            xanchor="left",
-            yanchor="bottom",
-            font=dict(size=14, color='#2c3e50')
-        )]
+        hovermode='x unified'
     )
+    
     
     return fig, df, has_2025_data
 
@@ -452,12 +459,214 @@ def main():
     # Get summary stats
     stats = create_summary_stats(df)
     
-    # Convert to HTML
-    chart_html = fig.to_html(
-        include_plotlyjs='cdn',
-        div_id='crimes-chart',
-        config={'displayModeBar': True, 'displaylogo': False}
-    )
+    # Load data again for JavaScript generation
+    yearly_data, _ = create_yearly_analysis(df)
+    neighborhoods = sorted([n for n in df['Neighborhood'].unique() if n != 'Unknown'])
+    cambridge_national_data = yearly_data[yearly_data['Neighborhood'] == 'National Average (Cambridge)']
+    
+    # STEP 1: Pre-calculate all neighborhood data cleanly
+    print("Pre-calculating neighborhood data...")
+    
+    # Get all years from the dataset
+    all_years = sorted(yearly_data['Year'].unique())
+    
+    # Build clean data structure for each neighborhood
+    clean_neighborhood_data = {}
+    
+    # Add "All Neighborhoods" data first
+    all_data = yearly_data[yearly_data['Neighborhood'] == 'All Neighborhoods'].sort_values('Year')
+    clean_neighborhood_data['All Neighborhoods'] = {
+        'years': all_data['Year'].tolist(),
+        'crimes': [float(x) for x in all_data['Crime_Count'].tolist()],
+        'nationalYears': cambridge_national_data['Year'].tolist(),
+        'nationalCrimes': [float(x) for x in cambridge_national_data['Crime_Count'].tolist()]
+    }
+    
+    # Add each individual neighborhood
+    for neighborhood in neighborhoods:
+        neighborhood_data_subset = yearly_data[yearly_data['Neighborhood'] == neighborhood].sort_values('Year')
+        
+        if len(neighborhood_data_subset) > 0:
+            # Get the pre-calculated national average for this specific neighborhood
+            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})'].sort_values('Year')
+            
+            if not neighborhood_national_data.empty:
+                national_years = neighborhood_national_data['Year'].tolist()
+                national_crimes = [float(x) for x in neighborhood_national_data['Crime_Count'].tolist()]
+            else:
+                # Fallback to Cambridge-wide national average
+                national_years = cambridge_national_data['Year'].tolist()
+                national_crimes = [float(x) for x in cambridge_national_data['Crime_Count'].tolist()]
+            
+            clean_neighborhood_data[neighborhood] = {
+                'years': neighborhood_data_subset['Year'].tolist(),
+                'crimes': [float(x) for x in neighborhood_data_subset['Crime_Count'].tolist()],
+                'nationalYears': national_years,
+                'nationalCrimes': national_crimes
+            }
+    
+    print(f"Successfully pre-calculated data for {len(clean_neighborhood_data)} neighborhoods")
+    
+    # STEP 2: Generate clean JavaScript from pre-calculated data
+    print("Generating JavaScript data structure...")
+    
+    # Manually create just the div - we'll add the script later
+    chart_html = '<div id="crimes-chart" style="height: 600px; width: 100%;"></div>'
+    
+    # Generate JavaScript data using the clean pre-calculated data
+    neighborhood_data_js = "const neighborhoodData = {\n"
+    
+    for neighborhood_name, data in clean_neighborhood_data.items():
+        neighborhood_data_js += f"  '{neighborhood_name}': {{\n"
+        neighborhood_data_js += f"    years: {data['years']},\n"
+        neighborhood_data_js += f"    crimes: {data['crimes']},\n"
+        neighborhood_data_js += f"    nationalYears: {data['nationalYears']},\n"
+        neighborhood_data_js += f"    nationalCrimes: {data['nationalCrimes']}\n"
+        neighborhood_data_js += f"  }},\n"
+    
+    neighborhood_data_js += "};\n"
+    
+    # STEP 3: Create simple JavaScript functions using clean data
+    print("Creating JavaScript chart functions...")
+    
+    import json
+    chart_data = fig.to_dict()
+    plotly_script = f'''
+// Initialize the plotly chart using the "All Neighborhoods" data
+function initializeChart() {{
+    const data = neighborhoodData['All Neighborhoods'];
+    
+    const trace1 = {{
+        x: data.years,
+        y: data.crimes,
+        mode: 'lines+markers',
+        name: 'All Neighborhoods',
+        line: {{color: '#d63031', width: 3}},
+        marker: {{size: 8, color: '#d63031'}},
+        customdata: data.years.map(year => year === 2025 ? '2025E' : year.toString()),
+        hovertemplate: '<b>All Neighborhoods</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>'
+    }};
+    
+    const trace2 = {{
+        x: data.nationalYears,
+        y: data.nationalCrimes,
+        mode: 'lines',
+        name: 'US National Average',
+        line: {{color: '#636e72', width: 2, dash: 'dot'}},
+        customdata: data.nationalYears.map(year => year === 2025 ? '2025E' : year.toString()),
+        hovertemplate: '<b>US National Average</b><br>Year: %{{customdata}}<br>Expected Crimes: %{{y}}<extra></extra>'
+    }};
+    
+    const layout = {{
+        title: {{
+            text: 'Violent Crimes in Cambridge by Year',
+            font: {{size: 24, color: '#2c3e50'}},
+            x: 0.5
+        }},
+        xaxis: {{
+            title: {{text: 'Year', font: {{size: 16}}}},
+            tickfont: {{size: 14}},
+            gridcolor: '#ecf0f1',
+            tickmode: 'array',
+            tickvals: data.years,
+            ticktext: data.years.map(year => year === 2025 ? '2025E' : year.toString())
+        }},
+        yaxis: {{
+            title: {{text: 'Number of Violent Crimes', font: {{size: 16}}}},
+            tickfont: {{size: 14}},
+            gridcolor: '#ecf0f1'
+        }},
+        font: {{family: 'Segoe UI, Arial'}},
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
+        hovermode: 'x unified'
+    }};
+    
+    Plotly.newPlot('crimes-chart', [trace1, trace2], layout, {{
+        displayModeBar: true,
+        displaylogo: false,
+        responsive: true
+    }});
+}}
+
+// Simple dropdown functionality using pre-calculated clean data
+function updateChart(selectedNeighborhood) {{
+    console.log('Updating chart for:', selectedNeighborhood);
+    const data = neighborhoodData[selectedNeighborhood];
+    
+    if (data) {{
+        console.log('Found clean pre-calculated data for', selectedNeighborhood);
+        console.log('Years:', data.years);
+        console.log('Crimes:', data.crimes);
+        console.log('National Years:', data.nationalYears);
+        console.log('National Crimes:', data.nationalCrimes);
+        
+        // Use the exact same approach as All Neighborhoods - purge and recreate
+        Plotly.purge('crimes-chart');
+        
+        const trace1 = {{
+            x: data.years,
+            y: data.crimes,
+            mode: 'lines+markers',
+            name: selectedNeighborhood,
+            line: {{color: '#d63031', width: 3}},
+            marker: {{size: 8, color: '#d63031'}},
+            customdata: data.years.map(year => year === 2025 ? '2025E' : year.toString()),
+            hovertemplate: `<b>${{selectedNeighborhood}}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>`
+        }};
+        
+        const trace2 = {{
+            x: data.nationalYears,
+            y: data.nationalCrimes,
+            mode: 'lines',
+            name: 'US National Average',
+            line: {{color: '#636e72', width: 2, dash: 'dot'}},
+            customdata: data.nationalYears.map(year => year === 2025 ? '2025E' : year.toString()),
+            hovertemplate: '<b>US National Average</b><br>Year: %{{customdata}}<br>Expected Crimes: %{{y}}<extra></extra>'
+        }};
+        
+        const layout = {{
+            title: {{
+                text: 'Violent Crimes in Cambridge by Year',
+                font: {{size: 24, color: '#2c3e50'}},
+                x: 0.5
+            }},
+            xaxis: {{
+                title: {{text: 'Year', font: {{size: 16}}}},
+                tickfont: {{size: 14}},
+                gridcolor: '#ecf0f1',
+                tickmode: 'array',
+                tickvals: data.years,
+                ticktext: data.years.map(year => year === 2025 ? '2025E' : year.toString())
+            }},
+            yaxis: {{
+                title: {{text: 'Number of Violent Crimes', font: {{size: 16}}}},
+                tickfont: {{size: 14}},
+                gridcolor: '#ecf0f1'
+            }},
+            font: {{family: 'Segoe UI, Arial'}},
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            hovermode: 'x unified'
+        }};
+        
+        // Create completely fresh chart - same as initialization
+        Plotly.newPlot('crimes-chart', [trace1, trace2], layout, {{
+            displayModeBar: true,
+            displaylogo: false,
+            responsive: true
+        }});
+        
+        console.log('Chart recreated successfully with clean data');
+    }} else {{
+        console.error('No data found for:', selectedNeighborhood);
+    }}
+}}
+
+// Initialize when page loads
+window.onload = function() {{
+    initializeChart();
+}};'''
     
     # Create complete HTML page
     html_content = f'''
@@ -467,6 +676,7 @@ def main():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cambridge Crimes by Year | Crime Data Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         * {{
             margin: 0;
@@ -705,7 +915,19 @@ def main():
         </div>
         
         <div class="chart-container">
+            <div style="margin-bottom: 20px;">
+                <label for="neighborhood-select" style="font-weight: 600; margin-right: 10px; color: #2c3e50;">Filter by Neighborhood:</label>
+                <select id="neighborhood-select" onchange="updateChart(this.value)" style="padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 4px; background: white; font-size: 14px;">
+                    <option value="All Neighborhoods">All Neighborhoods</option>
+                    {chr(10).join([f'<option value="{neighborhood}">{neighborhood}</option>' for neighborhood in sorted(clean_neighborhood_data.keys()) if neighborhood != 'All Neighborhoods'])}
+                </select>
+            </div>
             {chart_html}
+            
+            <script>
+            {neighborhood_data_js}
+            {plotly_script}
+            </script>
         </div>
         
         <div class="info-box">
