@@ -298,7 +298,8 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                     marker=dict(size=8, color='#d63031'),  # Same size and color as Cambridge overall
                     visible=False,
                     customdata=neighborhood_year_labels,
-                    hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>'
+                    hovertemplate='<b>%{fullData.name}</b><br>Year: %{customdata}<br>Crimes: %{y}<extra></extra>',
+                    legendgroup=f'{neighborhood}_group'
                 ))
                 
                 # Add national average for this specific neighborhood (hidden by default)
@@ -316,7 +317,8 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                         visible=False,
                         customdata=neighborhood_national_year_labels,
                         hovertemplate='<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>',
-                        showlegend=False  # Don't show in legend to avoid duplicates
+                        showlegend=False,  # Don't show in legend to avoid duplicates
+                        legendgroup=f'{neighborhood}_group'  # Group traces together
                     ))
                 
                 # Store the mapping
