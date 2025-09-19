@@ -312,33 +312,17 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
             neighborhood_year_labels = create_year_labels(neighborhood_data['Year'], has_2025_data)
             
             # Prepare the data update for this neighborhood
+            # Use the Cambridge-wide national average for all neighborhood selections to avoid multiple lines
             update_data = {
-                'x': [neighborhood_data['Year'].tolist()],
-                'y': [neighborhood_data['Crime_Count'].tolist()],
-                'customdata': [neighborhood_year_labels],
-                'name': [neighborhood],
-                'hovertemplate': [f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>']
+                'x': [neighborhood_data['Year'].tolist(), cambridge_national_data['Year'].tolist()],
+                'y': [neighborhood_data['Crime_Count'].tolist(), cambridge_national_data['Crime_Count'].tolist()],
+                'customdata': [neighborhood_year_labels, cambridge_national_year_labels],
+                'name': [neighborhood, 'US National Average'],
+                'hovertemplate': [
+                    f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>',
+                    '<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>'
+                ]
             }
-            
-            # Add national average data if available for this specific neighborhood
-            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
-            if not neighborhood_national_data.empty:
-                neighborhood_national_year_labels = create_year_labels(neighborhood_national_data['Year'], has_2025_data)
-                # Update the second trace (national average) with this neighborhood's national data
-                update_data['x'].append(neighborhood_national_data['Year'].tolist())
-                update_data['y'].append(neighborhood_national_data['Crime_Count'].tolist())
-                update_data['customdata'].append(neighborhood_national_year_labels)
-                update_data['name'].append('US National Average')
-                update_data['hovertemplate'].append('<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>')
-                update_visible = [True, True]
-            else:
-                # If no national average data for this neighborhood, hide the second trace
-                update_data['x'].append([])
-                update_data['y'].append([])
-                update_data['customdata'].append([])
-                update_data['name'].append('US National Average')
-                update_data['hovertemplate'].append('<b>US National Average</b><br>Year: %{customdata}<br>Expected Crimes: %{y}<extra></extra>')
-                update_visible = [True, False]
             
             # Add button that updates the existing traces
             dropdown_buttons.append(dict(
