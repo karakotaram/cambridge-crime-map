@@ -45,6 +45,14 @@ def get_neighborhood_populations():
     }
 
 
+def get_comparison_crime_rates():
+    """Get violent crime rates per 1,000 residents for comparison cities/national average."""
+    return {
+        'US National Average': 3.67,  # FBI 2023: ~366.7 per 100k = 3.67 per 1k
+        'Boston Average': 6.24        # Boston 2023: ~624 per 100k = 6.24 per 1k (estimated)
+    }
+
+
 def load_and_process_data(csv_path):
     """Load and process crime data for per capita analysis."""
     print("Loading crime data...")
@@ -102,7 +110,7 @@ def create_per_capita_analysis(df, selected_year=None):
     return crime_counts, period_label
 
 
-def create_crimes_per_capita_chart(csv_path='./crimedata.csv'):
+def create_crimes_per_capita_chart(csv_path='../../crimedata.csv'):
     """Create interactive Plotly chart for crimes per capita by neighborhood with year filtering."""
     
     # Load and process data
@@ -132,6 +140,35 @@ def create_crimes_per_capita_chart(csv_path='./crimedata.csv'):
                       '<extra></extra>'
     ))
     
+    # Add comparison bars for US National Average and Boston Average
+    comparison_rates = get_comparison_crime_rates()
+    
+    # Add US National Average bar
+    fig.add_trace(go.Bar(
+        x=['US National Average'],
+        y=[comparison_rates['US National Average']],
+        name='US National Average',
+        marker_color='#74b9ff',  # Light blue
+        visible=True,
+        hovertemplate='<b>%{x}</b><br>' +
+                      'Crimes per 1,000: %{y:.1f}<br>' +
+                      'Reference: FBI National Data<br>' +
+                      '<extra></extra>'
+    ))
+    
+    # Add Boston Average bar
+    fig.add_trace(go.Bar(
+        x=['Boston Average'],
+        y=[comparison_rates['Boston Average']],
+        name='Boston Average',
+        marker_color='#fd79a8',  # Light pink
+        visible=True,
+        hovertemplate='<b>%{x}</b><br>' +
+                      'Crimes per 1,000: %{y:.1f}<br>' +
+                      'Reference: Boston Police Data<br>' +
+                      '<extra></extra>'
+    ))
+    
     # Add traces for each year (initially hidden)
     colors = px.colors.qualitative.Set3
     for i, year in enumerate(available_years):
@@ -153,18 +190,19 @@ def create_crimes_per_capita_chart(csv_path='./crimedata.csv'):
     # Create dropdown menu
     dropdown_buttons = []
     
-    # All Time button
-    all_visible = [True] + [False] * len(available_years)
+    # All Time button - show neighborhoods + comparison bars, hide individual years
+    # Trace order: [All Time, US National, Boston, Year1, Year2, ...]
+    all_visible = [True, True, True] + [False] * len(available_years)
     dropdown_buttons.append(dict(
         label="All Time (2009-Present)",
         method="update",
         args=[{"visible": all_visible}]
     ))
     
-    # Individual year buttons
+    # Individual year buttons - show specific year + comparison bars, hide others
     for i, year in enumerate(available_years):
-        visible_list = [False] * (1 + len(available_years))
-        visible_list[i + 1] = True  # +1 because All Time is at index 0
+        visible_list = [False, True, True] + [False] * len(available_years)  # Always show comparison bars
+        visible_list[3 + i] = True  # +3 because All Time, US National, Boston are at indices 0, 1, 2
         dropdown_buttons.append(dict(
             label=str(year),
             method="update",
