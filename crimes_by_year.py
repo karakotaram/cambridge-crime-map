@@ -302,7 +302,7 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
     dropdown_buttons.append(dict(
         label="All Neighborhoods",
         method="restyle",
-        args=[all_neighborhoods_update]
+        args=[all_neighborhoods_update, [0, 1]]  # Specify trace indices explicitly
     ))
     
     # Individual neighborhood buttons - replace chart data dynamically
@@ -340,7 +340,7 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
             dropdown_buttons.append(dict(
                 label=neighborhood,
                 method="restyle",
-                args=[update_data]
+                args=[update_data, [0, 1]]  # Specify trace indices explicitly
             ))
     
     # Update layout
