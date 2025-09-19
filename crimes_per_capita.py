@@ -45,11 +45,16 @@ def get_neighborhood_populations():
     }
 
 
-def get_comparison_crime_rates():
+def get_comparison_crime_rates(years_multiplier=1):
     """Get violent crime rates per 1,000 residents for comparison cities/national average."""
-    return {
+    base_rates = {
         'US National Average': 3.67,  # FBI 2023: ~366.7 per 100k = 3.67 per 1k
         'Boston Average': 6.24        # Boston 2023: ~624 per 100k = 6.24 per 1k (estimated)
+    }
+    
+    return {
+        'US National Average': base_rates['US National Average'] * years_multiplier,
+        'Boston Average': base_rates['Boston Average'] * years_multiplier
     }
 
 
@@ -140,32 +145,32 @@ def create_crimes_per_capita_chart(csv_path='../../crimedata.csv'):
                       '<extra></extra>'
     ))
     
-    # Add comparison bars for US National Average and Boston Average
-    comparison_rates = get_comparison_crime_rates()
+    # Add comparison bars for US National Average and Boston Average (All Time - 16 years)
+    comparison_rates_alltime = get_comparison_crime_rates(16)
     
-    # Add US National Average bar
+    # Add US National Average bar (All Time)
     fig.add_trace(go.Bar(
         x=['US National Average'],
-        y=[comparison_rates['US National Average']],
+        y=[comparison_rates_alltime['US National Average']],
         name='US National Average',
         marker_color='#74b9ff',  # Light blue
         visible=True,
         hovertemplate='<b>%{x}</b><br>' +
                       'Crimes per 1,000: %{y:.1f}<br>' +
-                      'Reference: FBI National Data<br>' +
+                      'Reference: FBI National Data (16-year total)<br>' +
                       '<extra></extra>'
     ))
     
-    # Add Boston Average bar
+    # Add Boston Average bar (All Time)
     fig.add_trace(go.Bar(
         x=['Boston Average'],
-        y=[comparison_rates['Boston Average']],
+        y=[comparison_rates_alltime['Boston Average']],
         name='Boston Average',
         marker_color='#fd79a8',  # Light pink
         visible=True,
         hovertemplate='<b>%{x}</b><br>' +
                       'Crimes per 1,000: %{y:.1f}<br>' +
-                      'Reference: Boston Police Data<br>' +
+                      'Reference: Boston Police Data (16-year total)<br>' +
                       '<extra></extra>'
     ))
     
@@ -187,22 +192,51 @@ def create_crimes_per_capita_chart(csv_path='../../crimedata.csv'):
                           '<extra></extra>'
         ))
     
+    # Add annual comparison bars (for individual year views)
+    comparison_rates_annual = get_comparison_crime_rates(1)
+    
+    # Add US National Average bar (Annual)
+    fig.add_trace(go.Bar(
+        x=['US National Average'],
+        y=[comparison_rates_annual['US National Average']],
+        name='US National Average (Annual)',
+        marker_color='#74b9ff',  # Light blue
+        visible=False,
+        hovertemplate='<b>%{x}</b><br>' +
+                      'Crimes per 1,000: %{y:.1f}<br>' +
+                      'Reference: FBI National Data (annual)<br>' +
+                      '<extra></extra>'
+    ))
+    
+    # Add Boston Average bar (Annual)
+    fig.add_trace(go.Bar(
+        x=['Boston Average'],
+        y=[comparison_rates_annual['Boston Average']],
+        name='Boston Average (Annual)',
+        marker_color='#fd79a8',  # Light pink
+        visible=False,
+        hovertemplate='<b>%{x}</b><br>' +
+                      'Crimes per 1,000: %{y:.1f}<br>' +
+                      'Reference: Boston Police Data (annual)<br>' +
+                      '<extra></extra>'
+    ))
+    
     # Create dropdown menu
     dropdown_buttons = []
     
-    # All Time button - show neighborhoods + comparison bars, hide individual years
-    # Trace order: [All Time, US National, Boston, Year1, Year2, ...]
-    all_visible = [True, True, True] + [False] * len(available_years)
+    # All Time button - show neighborhoods + 16-year total comparison bars, hide individual years and annual bars
+    # Trace order: [All Time, US National 16yr, Boston 16yr, Year1, Year2, ..., US National annual, Boston annual]
+    all_visible = [True, True, True] + [False] * len(available_years) + [False, False]
     dropdown_buttons.append(dict(
         label="All Time (2009-Present)",
         method="update",
         args=[{"visible": all_visible}]
     ))
     
-    # Individual year buttons - show specific year + comparison bars, hide others
+    # Individual year buttons - show specific year + annual comparison bars, hide others
     for i, year in enumerate(available_years):
-        visible_list = [False, True, True] + [False] * len(available_years)  # Always show comparison bars
-        visible_list[3 + i] = True  # +3 because All Time, US National, Boston are at indices 0, 1, 2
+        visible_list = [False, False, False] + [False] * len(available_years) + [True, True]  # Show annual comparison bars
+        visible_list[3 + i] = True  # Show the specific year data
         dropdown_buttons.append(dict(
             label=str(year),
             method="update",
