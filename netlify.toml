@@ -4,6 +4,14 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Form handling configuration
+[[plugins]]
+  package = "@netlify/plugin-functions"
+
+# Form notifications - send to your email
+[context.production]
+  environment = { NOTIFICATION_EMAIL = "karan.arakotaram@gmail.com" }
+
 [[redirects]]
   from = "/"
   to = "/index.html"
