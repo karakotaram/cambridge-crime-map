@@ -311,12 +311,24 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
         if len(neighborhood_data) > 0:
             neighborhood_year_labels = create_year_labels(neighborhood_data['Year'], has_2025_data)
             
+            # Calculate neighborhood-specific national average
+            neighborhood_national_data = yearly_data[yearly_data['Neighborhood'] == f'National Average ({neighborhood})']
+            if not neighborhood_national_data.empty:
+                neighborhood_national_year_labels = create_year_labels(neighborhood_national_data['Year'], has_2025_data)
+                national_x = neighborhood_national_data['Year'].tolist()
+                national_y = neighborhood_national_data['Crime_Count'].tolist()
+                national_customdata = neighborhood_national_year_labels
+            else:
+                # Fallback to Cambridge-wide if no neighborhood-specific data
+                national_x = cambridge_national_data['Year'].tolist()
+                national_y = cambridge_national_data['Crime_Count'].tolist()
+                national_customdata = cambridge_national_year_labels
+            
             # Prepare the data update for this neighborhood
-            # Use the Cambridge-wide national average for all neighborhood selections to avoid multiple lines
             update_data = {
-                'x': [neighborhood_data['Year'].tolist(), cambridge_national_data['Year'].tolist()],
-                'y': [neighborhood_data['Crime_Count'].tolist(), cambridge_national_data['Crime_Count'].tolist()],
-                'customdata': [neighborhood_year_labels, cambridge_national_year_labels],
+                'x': [neighborhood_data['Year'].tolist(), national_x],
+                'y': [neighborhood_data['Crime_Count'].tolist(), national_y],
+                'customdata': [neighborhood_year_labels, national_customdata],
                 'name': [neighborhood, 'US National Average'],
                 'hovertemplate': [
                     f'<b>{neighborhood}</b><br>Year: %{{customdata}}<br>Crimes: %{{y}}<extra></extra>',
