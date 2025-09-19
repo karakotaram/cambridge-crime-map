@@ -311,7 +311,7 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
                         x=neighborhood_national_data['Year'],
                         y=neighborhood_national_data['Crime_Count'],
                         mode='lines',
-                        name='US National Average',
+                        name=f'US National Average ({neighborhood})',  # Unique name per neighborhood
                         line=dict(color='#636e72', width=2, dash='dot'),
                         visible=False,
                         customdata=neighborhood_national_year_labels,
@@ -351,6 +351,7 @@ def create_crimes_by_year_chart(csv_path='./crimedata.csv'):
         national_trace_idx = neighborhood_trace_mapping[neighborhood]['national_trace']
         if national_trace_idx is not None:
             visible_list[national_trace_idx] = True
+        
         
         dropdown_buttons.append(dict(
             label=neighborhood,
