@@ -72,9 +72,16 @@ def aggregate_by_location(df):
     result = result.merge(location_info, on=['lat', 'lon'])
     
     # Add detailed crime list for each location
-    detailed_crimes = df.groupby(['lat', 'lon'], include_groups=False).apply(
-        lambda group: group[['Crime Date Time', 'Crime', 'File Number']].to_dict('records')
-    ).reset_index(name='detailed_crimes')
+    try:
+        # Try newer pandas syntax first
+        detailed_crimes = df.groupby(['lat', 'lon'], include_groups=False).apply(
+            lambda group: group[['Crime Date Time', 'Crime', 'File Number']].to_dict('records')
+        ).reset_index(name='detailed_crimes')
+    except TypeError:
+        # Fall back to older pandas syntax
+        detailed_crimes = df.groupby(['lat', 'lon']).apply(
+            lambda group: group[['Crime Date Time', 'Crime', 'File Number']].to_dict('records')
+        ).reset_index(name='detailed_crimes')
     
     result = result.merge(detailed_crimes, on=['lat', 'lon'])
     
@@ -339,7 +346,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 <h1 style="margin: 0; font-size: 1.8rem;">🗺️ Cambridge Crime Map</h1>
                 <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Interactive map of violent crimes, 2009-Present</p>
             </div>
-            <a href="/cambridge-crime-map/" style="background: rgba(255,255,255,0.2); color: white; 
+            <a href="/" style="background: rgba(255,255,255,0.2); color: white; 
                                           padding: 8px 16px; border-radius: 20px; text-decoration: none; 
                                           font-weight: bold; transition: all 0.3s ease;"
                onmouseover="this.style.background='rgba(255,255,255,0.3)'"

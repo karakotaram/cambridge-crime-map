@@ -443,7 +443,7 @@ def main():
     </div>
     
     <div class="nav">
-        <a href="/cambridge-crime-map/">← Back to Analysis Home</a>
+        <a href="/">← Back to Analysis Home</a>
     </div>
     
     <div class="container">
