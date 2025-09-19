@@ -71,6 +71,13 @@ def aggregate_by_location(df):
     
     result = result.merge(location_info, on=['lat', 'lon'])
     
+    # Add detailed crime list for each location
+    detailed_crimes = df.groupby(['lat', 'lon'], include_groups=False).apply(
+        lambda group: group[['Crime Date Time', 'Crime', 'File Number']].to_dict('records')
+    ).reset_index(name='detailed_crimes')
+    
+    result = result.merge(detailed_crimes, on=['lat', 'lon'])
+    
     return result
 
 
@@ -129,7 +136,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     color = get_violence_color_palette()
     
     # Create feature groups for each time period
-    def add_markers_to_group(fg, aggregated, color):
+    def add_markers_to_group(fg, aggregated, color, crime_data_store):
         """Helper function to add markers to a feature group."""
         # Calculate marker size range
         if len(aggregated) > 1:
@@ -138,7 +145,7 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
         else:
             max_total = min_total = aggregated['total_incidents'].iloc[0] if len(aggregated) > 0 else 1
         
-        for _, row in aggregated.iterrows():
+        for idx, row in aggregated.iterrows():
             # Scale marker size based on total incidents at location
             if max_total > min_total:
                 size = 8 + (row['total_incidents'] - min_total) / (max_total - min_total) * 20
@@ -149,17 +156,30 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
             earliest = row['earliest_date'].strftime('%Y-%m-%d') if pd.notna(row['earliest_date']) else 'Unknown'
             latest = row['latest_date'].strftime('%Y-%m-%d') if pd.notna(row['latest_date']) else 'Unknown'
             
-            # Create popup text
+            # Create unique ID for this marker
+            marker_id = f"marker_{idx}_{hash(f'{row.lat}_{row.lon}')}"
+            
+            # Store crime details in the global store
+            crime_data_store[marker_id] = row['detailed_crimes']
+            
+            # Create popup text with button to show detailed crimes
             popup_text = f"""
-            <b>Location:</b> {row['Location'] if pd.notna(row['Location']) else 'Not specified'}<br>
-            <b>Neighborhood:</b> {row['Neighborhood'] if pd.notna(row['Neighborhood']) else 'Not specified'}<br>
-            <b>Violent Crime Types:</b> {row['top_crimes']}<br>
-            <b>Total Incidents:</b> {row['total_incidents']}<br>
-            <b>Date Range:</b> {earliest} to {latest}
+            <div style="min-width: 250px;">
+                <b>Location:</b> {row['Location'] if pd.notna(row['Location']) else 'Not specified'}<br>
+                <b>Neighborhood:</b> {row['Neighborhood'] if pd.notna(row['Neighborhood']) else 'Not specified'}<br>
+                <b>Violent Crime Types:</b> {row['top_crimes']}<br>
+                <b>Total Incidents:</b> {row['total_incidents']}<br>
+                <b>Date Range:</b> {earliest} to {latest}<br><br>
+                <button onclick="showCrimeDetails('{marker_id}')" 
+                        style="background: #007bff; color: white; border: none; 
+                               padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                    View All {row['total_incidents']} Incidents
+                </button>
+            </div>
             """
             
             # Add circle marker
-            folium.CircleMarker(
+            marker = folium.CircleMarker(
                 location=[row['lat'], row['lon']],
                 radius=size,
                 popup=folium.Popup(popup_text, max_width=300),
@@ -167,22 +187,26 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
                 fillColor=color,
                 fillOpacity=0.7,
                 weight=2
-            ).add_to(fg)
+            )
+            marker.add_to(fg)
     
     # Create feature groups - but implement radio button behavior by hiding/showing layers
     all_time_fg = folium.FeatureGroup(name='All Time')
     five_year_fg = folium.FeatureGroup(name='Past 5 Years') 
     one_year_fg = folium.FeatureGroup(name='Past Year')
     
+    # Store for all crime details data that will be embedded in JavaScript
+    crime_data_store = {}
+    
     # Add markers to each group
     if time_periods['all']['data'] is not None and len(time_periods['all']['data']) > 0:
-        add_markers_to_group(all_time_fg, time_periods['all']['data'], color)
+        add_markers_to_group(all_time_fg, time_periods['all']['data'], color, crime_data_store)
     
     if time_periods['5_years']['data'] is not None and len(time_periods['5_years']['data']) > 0:
-        add_markers_to_group(five_year_fg, time_periods['5_years']['data'], color)
+        add_markers_to_group(five_year_fg, time_periods['5_years']['data'], color, crime_data_store)
         
     if time_periods['1_year']['data'] is not None and len(time_periods['1_year']['data']) > 0:
-        add_markers_to_group(one_year_fg, time_periods['1_year']['data'], color)
+        add_markers_to_group(one_year_fg, time_periods['1_year']['data'], color, crime_data_store)
     
     # Add all feature groups to map 
     all_time_fg.add_to(m)
@@ -401,6 +425,96 @@ def create_cambridge_crime_map(csv_path='crimedata.csv'):
     '''
     
     m.get_root().html.add_child(folium.Element(radio_behavior_js))
+    
+    # Add crime details functionality
+    import json
+    crime_details_js = f'''
+    <script>
+    // Store all crime details data
+    window.crimeDetails = {json.dumps(crime_data_store, default=str)};
+    
+    function showCrimeDetails(markerId) {{
+        const crimes = window.crimeDetails[markerId];
+        if (!crimes || crimes.length === 0) {{
+            alert('No detailed crime data available for this location.');
+            return;
+        }}
+        
+        // Create modal content
+        let modalContent = `
+            <div id="crimeModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                                      background: rgba(0,0,0,0.7); z-index: 10001; display: flex; 
+                                      align-items: center; justify-content: center;">
+                <div style="background: white; max-width: 800px; max-height: 80vh; width: 90%; 
+                           border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <div style="background: #f8f9fa; padding: 15px; border-bottom: 1px solid #ddd; 
+                               display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; color: #333;">Crime Incidents at This Location</h3>
+                        <button onclick="closeCrimeModal()" style="background: none; border: none; 
+                                       font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                    </div>
+                    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
+                        <div style="margin-bottom: 15px; color: #666;">
+                            <strong>${{crimes.length}}</strong> total incidents found
+                        </div>
+                        <div style="display: grid; gap: 10px;">
+        `;
+        
+        // Sort crimes by date (most recent first)
+        const sortedCrimes = crimes.sort((a, b) => new Date(b['Crime Date Time']) - new Date(a['Crime Date Time']));
+        
+        sortedCrimes.forEach((crime, index) => {{
+            const date = new Date(crime['Crime Date Time']).toLocaleDateString();
+            modalContent += `
+                <div style="border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; 
+                           background: ${{index % 2 === 0 ? '#f8f9fa' : 'white'}};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <strong style="color: #d63031;">${{crime.Crime}}</strong>
+                        <span style="background: #6c757d; color: white; padding: 2px 8px; 
+                                   border-radius: 12px; font-size: 0.8em;">${{date}}</span>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        <strong>File Number:</strong> ${{crime['File Number'] || 'Not available'}}
+                    </div>
+                </div>
+            `;
+        }});
+        
+        modalContent += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+        
+        // Close modal when clicking background
+        document.getElementById('crimeModal').addEventListener('click', function(e) {{
+            if (e.target === this) {{
+                closeCrimeModal();
+            }}
+        }});
+    }}
+    
+    function closeCrimeModal() {{
+        const modal = document.getElementById('crimeModal');
+        if (modal) {{
+            modal.remove();
+        }}
+    }}
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {{
+        if (e.key === 'Escape') {{
+            closeCrimeModal();
+        }}
+    }});
+    </script>
+    '''
+    
+    m.get_root().html.add_child(folium.Element(crime_details_js))
     
     return m
 
